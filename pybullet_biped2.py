@@ -54,8 +54,8 @@ class KneedWalkerConfig:
         self.gravity = -9.81
         self.time_step = 1/240
         
-        # SPAWN POSITION - Mid-gait on slope
-        self.spawn_distance_down_slope = 5.0  # meters from top
+        # SPAWN POSITION - Top of slope
+        self.spawn_distance_down_slope = 0.5  # meters from top
         self.spawn_height_above_ground = 0.02  # Just above surface
 
 config = KneedWalkerConfig()
