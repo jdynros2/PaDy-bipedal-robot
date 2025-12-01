@@ -4,7 +4,10 @@
 github cheat sheet
 -
 git add .
+
 git commit -m "Changes you have made"
+
 git push
 
+...
 git pull      "pull changes to local from remote"
