@@ -10,11 +10,11 @@ cd PaDy-bipedal-robot/simulation
 
 source venv/bin/activate
 
-jupyter lab    
+jupyter lab    (leg mechanics and movement)
 
-python pybullet_biped2.py
+python pybullet_biped2.py     (Real sim - not working yet) 
 
-or 
+exit venv with "deactivate"
 
 
 
