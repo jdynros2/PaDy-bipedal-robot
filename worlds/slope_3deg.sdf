@@ -1,0 +1,114 @@
+<?xml version="1.0"?>
+<!--
+  PaDy Simulation World - 3 Degree Slope
+  ========================================
+  10m long x 2m wide slope, tilted -3 degrees
+  High friction surface (mu=0.8) for passive walking
+-->
+<sdf version="1.9">
+  <world name="slope_world">
+
+    <!-- Physics: small timestep for stable passive dynamics -->
+    <physics name="1ms" type="bullet">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+      <gravity>0 0 -9.81</gravity>
+    </physics>
+
+    <!-- Required Gazebo plugins -->
+    <plugin filename="gz-sim-physics-system"
+            name="gz::sim::systems::Physics"/>
+    <plugin filename="gz-sim-scene-broadcaster-system"
+            name="gz::sim::systems::SceneBroadcaster"/>
+    <plugin filename="gz-sim-contact-system"
+            name="gz::sim::systems::Contact"/>
+
+    <!-- Sunlight -->
+    <light type="directional" name="sun">
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>1 1 1 1</diffuse>
+      <specular>0.5 0.5 0.5 1</specular>
+      <direction>-0.5 0.1 -0.9</direction>
+      <cast_shadows>true</cast_shadows>
+    </light>
+
+    <!-- 3-degree slope (10m long x 2m wide) -->
+    <model name="slope">
+      <static>true</static>
+      <!-- Rotate -3 degrees about Y axis = downward slope in X direction -->
+      <pose>5 0 0 0 -0.0524 0</pose>
+      <link name="slope_link">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>10 2 0.05</size>
+            </box>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <!-- High friction - no slipping -->
+                <mu>0.8</mu>
+                <mu2>0.8</mu2>
+              </ode>
+            </friction>
+            <contact>
+              <ode>
+                <!-- Hard contact - stiff floor -->
+                <kp>1000000.0</kp>
+                <kd>100.0</kd>
+                <max_vel>0.1</max_vel>
+                <min_depth>0.001</min_depth>
+              </ode>
+            </contact>
+          </surface>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>10 2 0.05</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.7 0.7 0.7 1</ambient>
+            <diffuse>0.8 0.8 0.8 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Guide rails (optional - for lateral stability testing) -->
+    <!-- Left rail -->
+    <model name="rail_left">
+      <static>true</static>
+      <pose>5 0.15 0.05 0 -0.0524 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box><size>10 0.01 0.05</size></box>
+          </geometry>
+          <material>
+            <ambient>0.8 0.2 0.2 1</ambient>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Right rail -->
+    <model name="rail_right">
+      <static>true</static>
+      <pose>5 -0.15 0.05 0 -0.0524 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box><size>10 0.01 0.05</size></box>
+          </geometry>
+          <material>
+            <ambient>0.8 0.2 0.2 1</ambient>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+  </world>
+</sdf>
