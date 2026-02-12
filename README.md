@@ -1,6 +1,5 @@
 # PaDy - Passive Dynamic Bipedal Walker
-
-MEng Final Year Project — University of Liverpool
+"PaDy" is a passive dynamic slope walking robot, which i am creating for a university final year project. This repo will contain my workflow and updates to manage/track my progress.
 
 ---
 
@@ -17,7 +16,7 @@ MEng Final Year Project — University of Liverpool
 
 ---
 
-## Mass Distribution (Research-Backed)
+## Mass Distribution 
 
 Based on **Collins et al. 2001** and **Morales-Cruz 2014**:
 
@@ -46,22 +45,8 @@ world (fixed reference)
               └─ foot_left [foot_joint_left - FIXED, no ankle]
 ```
 
-**No ankle joint** — foot rigidly attached to shin.
-Rail guides will constrain lateral motion in future work.
-
 ---
 
-## Why No Bearings/Axles in STL?
-
-The physical bearings and axles are replaced in simulation by:
-- **Joint position** (`<origin xyz="..."/>`) = where the axle center is
-- **Joint axis** (`<axis xyz="0 1 0"/>`) = direction the bearing rotates
-- **Joint dynamics** (`<dynamics damping="0.001"/>`) = bearing friction
-- **Mass** included in parent link inertial properties
-
-The STL files are **visual only** — physics is defined in URDF text.
-
----
 
 ## Quick Start (University PC)
 
@@ -84,19 +69,6 @@ ros2 launch pady_robot spawn_pady.launch.py
 
 ---
 
-## Iterative Workflow
-
-```
-Mac (Fusion 360)          GitHub              University PC
-─────────────────         ──────              ─────────────
-1. Edit CAD          →    git push    →    git pull
-2. Export STLs                              colcon build
-3. Update URDF                              ros2 launch
-4. Commit                                   Test & observe
-                          ← document results ←
-```
-
----
 
 ## Tuning for Walking
 
@@ -111,10 +83,3 @@ If robot falls immediately, adjust these values in `urdf/pady.urdf`:
 | Spawn height | launch file `-z` | Starting position |
 
 ---
-
-## Expected Performance
-
-- Walking speed: 0.5–1.2 m/s
-- Step period: ~1.0s
-- Slope: 3 degrees
-- Steps before falling (target): 5+ (limit cycle criterion)
