@@ -53,7 +53,7 @@ world (fixed reference)
 ```bash
 # Clone repository
 cd ~/ros2_ws/src
-git clone https://github.com/YOUR_USERNAME/PaDy-bipedal-walker.git pady_robot
+git clone https://github.com/jdynros2/PaDy-bipedal-walker.git pady_robot
 
 # Build
 cd ~/ros2_ws
