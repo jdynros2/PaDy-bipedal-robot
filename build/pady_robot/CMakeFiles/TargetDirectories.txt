@@ -1,0 +1,9 @@
+/home/elec330-admin/PaDy-bipedal-robot/build/pady_robot/CMakeFiles/uninstall.dir
+/home/elec330-admin/PaDy-bipedal-robot/build/pady_robot/CMakeFiles/pady_robot_uninstall.dir
+/home/elec330-admin/PaDy-bipedal-robot/build/pady_robot/CMakeFiles/test.dir
+/home/elec330-admin/PaDy-bipedal-robot/build/pady_robot/CMakeFiles/edit_cache.dir
+/home/elec330-admin/PaDy-bipedal-robot/build/pady_robot/CMakeFiles/rebuild_cache.dir
+/home/elec330-admin/PaDy-bipedal-robot/build/pady_robot/CMakeFiles/list_install_components.dir
+/home/elec330-admin/PaDy-bipedal-robot/build/pady_robot/CMakeFiles/install.dir
+/home/elec330-admin/PaDy-bipedal-robot/build/pady_robot/CMakeFiles/install/local.dir
+/home/elec330-admin/PaDy-bipedal-robot/build/pady_robot/CMakeFiles/install/strip.dir

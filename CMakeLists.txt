@@ -13,7 +13,6 @@ install(DIRECTORY
   meshes
   worlds
   launch
-  config
   DESTINATION share/${PROJECT_NAME}
 )
 

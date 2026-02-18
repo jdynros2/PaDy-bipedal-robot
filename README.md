@@ -1,5 +1,5 @@
 # PaDy - Passive Dynamic Bipedal Walker
-"PaDy" is a passive dynamic slope walking robot, which i am creating for a university final year project. This repo will contain my workflow and updates to manage/track my progress.
+"PaDy" is a passive dynamic slope walking robot, which I am creating for a university final year project. This repo will contain my workflow and updates to manage/track my progress.
 
 ---
 
@@ -35,18 +35,16 @@ creates the limit cycle needed for stable passive gait.
 ## Joint Structure
 
 ```
-world (fixed reference)
-  └─ base_link [floating - 6DOF free movement]
-      ├─ thigh_right [hip_joint_right - revolute ±30deg]
-      │   └─ shin_right [knee_joint_right - revolute 0-65deg]
-      │       └─ foot_right [foot_joint_right - FIXED, no ankle]
-      └─ thigh_left [hip_joint_left - revolute ±30deg]
-          └─ shin_left [knee_joint_left - revolute 0-65deg]
-              └─ foot_left [foot_joint_left - FIXED, no ankle]
+base_link [free-floating root - Gazebo treats URDF root as 6 DOF]
+    ├─ thigh_right [hip_joint_right - revolute ±30deg]
+    │   └─ shin_right [knee_joint_right - revolute 0-65deg]
+    │       └─ foot_right [foot_joint_right - FIXED, no ankle]
+    └─ thigh_left [hip_joint_left - revolute ±30deg]
+        └─ shin_left [knee_joint_left - revolute 0-65deg]
+            └─ foot_left [foot_joint_left - FIXED, no ankle]
 ```
 
 ---
-
 
 ## Quick Start (University PC)
 

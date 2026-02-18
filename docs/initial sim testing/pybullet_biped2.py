@@ -553,28 +553,22 @@ def run_armed_walker(config, gui=True, duration=15.0):
     print(f"  Robot current orientation: {orn}")
     
     print("\n  Setting mid-gait starting pose...")
-    
+
     # Legs: Right leg back (stance), left leg forward (swing)
-    p.resetJointState(robot_id, joint_dict['hip1'], np.radians(-10))
-    p.resetJointState(robot_id, joint_dict['knee1'], np.radians(5))
-    p.resetJointState(robot_id, joint_dict['hip2'], np.radians(20))
-    p.resetJointState(robot_id, joint_dict['knee2'], np.radians(15))
-    
+    # Use resetJointState for joints that only need position (knees, elbows),
+    # and resetJointState with targetVelocity for joints that also need an
+    # initial velocity (hips, shoulders).  resetJointStateMultiDof is not used
+    # here because resetJointState already accepts a targetVelocity argument.
+    p.resetJointState(robot_id, joint_dict['hip1'],    np.radians(-10), targetVelocity=0.5)
+    p.resetJointState(robot_id, joint_dict['knee1'],   np.radians(5),   targetVelocity=0.0)
+    p.resetJointState(robot_id, joint_dict['hip2'],    np.radians(20),  targetVelocity=-0.8)
+    p.resetJointState(robot_id, joint_dict['knee2'],   np.radians(15),  targetVelocity=0.0)
+
     # Arms: Counter-swing
-    p.resetJointState(robot_id, joint_dict['shoulder1'], np.radians(25))
-    p.resetJointState(robot_id, joint_dict['elbow1'], np.radians(20))
-    p.resetJointState(robot_id, joint_dict['shoulder2'], np.radians(-20))
-    p.resetJointState(robot_id, joint_dict['elbow2'], np.radians(15))
-    
-    # Set velocities
-    p.resetJointStateMultiDof(robot_id, joint_dict['hip1'], 
-                               targetValue=[np.radians(-10)], targetVelocity=[0.5])
-    p.resetJointStateMultiDof(robot_id, joint_dict['hip2'],
-                               targetValue=[np.radians(20)], targetVelocity=[-0.8])
-    p.resetJointStateMultiDof(robot_id, joint_dict['shoulder1'],
-                               targetValue=[np.radians(25)], targetVelocity=[-1.0])
-    p.resetJointStateMultiDof(robot_id, joint_dict['shoulder2'],
-                               targetValue=[np.radians(-20)], targetVelocity=[0.8])
+    p.resetJointState(robot_id, joint_dict['shoulder1'], np.radians(25),  targetVelocity=-1.0)
+    p.resetJointState(robot_id, joint_dict['elbow1'],    np.radians(20),  targetVelocity=0.0)
+    p.resetJointState(robot_id, joint_dict['shoulder2'], np.radians(-20), targetVelocity=0.8)
+    p.resetJointState(robot_id, joint_dict['elbow2'],    np.radians(15),  targetVelocity=0.0)
     
     # Set friction on feet
     for foot_joint in ['foot1', 'foot2']:
@@ -590,13 +584,18 @@ def run_armed_walker(config, gui=True, duration=15.0):
     print("    - Scroll to zoom out")
     print("    - Look for green box (hip)")
     
-    # Wait a moment for user to see robot
+    # Wait a moment for user to see robot.
+    # Step the simulation at full rate during the pause so the robot does not
+    # accumulate unconstrained free-fall from gravity while we sleep.
     if gui:
         print("\n⏸  Pausing 3 seconds so you can see the robot...")
-        for i in range(3):
+        pause_steps = int(3.0 / config.time_step)
+        for i in range(pause_steps):
             p.stepSimulation()
-            time.sleep(1)
-            print(f"    {3-i}...")
+            time.sleep(config.time_step)
+            if i % int(1.0 / config.time_step) == 0:
+                remaining = 3 - i * config.time_step
+                print(f"    {remaining:.0f}...")
     
     # Data collection
     data = {

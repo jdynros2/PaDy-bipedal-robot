@@ -2,7 +2,7 @@
 <!--
   PaDy - Passive Dynamic Bipedal Walker
   ======================================
-  Author: Jadyn (MEng Robotics, University of Liverpool)
+  Author: Jadyn (University of Liverpool)
   
   DESIGN PARAMETERS:
   - Total height:   ~1.017m
@@ -23,33 +23,24 @@
   - +Z = up
   
   JOINT HIERARCHY:
-  world (fixed)
-    └─ base_link (hip) [floating joint]
-        ├─ thigh_right [hip_joint_right - revolute]
-        │   └─ shin_right [knee_joint_right - revolute]
-        │       └─ foot_right [foot_joint_right - fixed]
-        └─ thigh_left [hip_joint_left - revolute]
-            └─ shin_left [knee_joint_left - revolute]
-                └─ foot_left [foot_joint_left - fixed]
+  base_link (hip) [free-floating root - Gazebo treats root as 6 DOF]
+      ├─ thigh_right [hip_joint_right - revolute]
+      │   └─ shin_right [knee_joint_right - revolute]
+      │       └─ foot_right [foot_joint_right - fixed]
+      └─ thigh_left [hip_joint_left - revolute]
+          └─ shin_left [knee_joint_left - revolute]
+              └─ foot_left [foot_joint_left - fixed]
 -->
 
 <robot name="pady">
 
   <!-- ============================================================
-       WORLD LINK + FLOATING BASE
-       Allows robot to move freely in 3D space (6 DOF)
-       Robot spawns 1.05m above ground, tilted 3 degrees
+       NOTE: No world link or floating joint.
+       In Gazebo Harmonic the URDF root link is automatically free-floating
+       (6 DOF). Spawn position is set by the launch file arguments.
+       A world link + floating joint causes PoseRelativeToGraph errors
+       when Gazebo converts URDF → SDF internally.
        ============================================================ -->
-
-  <link name="world"/>
-
-  <joint name="world_to_base" type="floating">
-    <parent link="world"/>
-    <child link="base_link"/>
-    <!-- Start position: 1.05m high, pitched -3deg to match slope -->
-    <origin xyz="0 0 1.05" rpy="0 -0.0524 0"/>
-  </joint>
-
 
   <!-- ============================================================
        BASE LINK (HIP / TORSO)
@@ -73,7 +64,8 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://pady_robot/meshes/collision/base_link.stl"
+        <!-- No separate collision mesh: reuse visual mesh (meshes/collision/ does not exist) -->
+        <mesh filename="package://pady_robot/meshes/visual/base_link.stl"
               scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
@@ -111,7 +103,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://pady_robot/meshes/collision/thigh_right.stl"
+        <mesh filename="package://pady_robot/meshes/visual/thigh_right.stl"
               scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
@@ -119,8 +111,11 @@
       <mass value="0.437"/>
       <!-- COM: 47.5mm from hip (top), centered on leg axis -->
       <origin xyz="0 0 -0.0475" rpy="0 0 0"/>
+      <!-- Inertia about COM. For cylindrical segment along Z: ixx=iyy=(1/12)*m*(3r²+L²).
+           Previous iyy=0.027024 was computed about the geometric midpoint, not the COM
+           (off by m*(0.2025)²=0.017862). Corrected to match ixx. -->
       <inertia ixx="0.009162" ixy="0.0" ixz="0.0"
-               iyy="0.027024" iyz="0.0"
+               iyy="0.009162" iyz="0.0"
                izz="0.000058"/>
     </inertial>
   </link>
@@ -164,7 +159,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://pady_robot/meshes/collision/shin_right.stl"
+        <mesh filename="package://pady_robot/meshes/visual/shin_right.stl"
               scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
@@ -172,8 +167,10 @@
       <mass value="0.350"/>
       <!-- COM: 32mm from knee (top), 468mm from ankle (93.6% up) -->
       <origin xyz="0 0 -0.032" rpy="0 0 0"/>
+      <!-- Inertia about COM. Previous iyy=0.023925 was computed about the geometric
+           midpoint (off by m*(0.218)²=0.016633). Corrected to match ixx. -->
       <inertia ixx="0.007338" ixy="0.0" ixz="0.0"
-               iyy="0.023925" iyz="0.0"
+               iyy="0.007338" iyz="0.0"
                izz="0.000047"/>
     </inertial>
   </link>
@@ -209,7 +206,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://pady_robot/meshes/visual/foot_right.stl"
+        <mesh filename="package://pady_robot/meshes/visual/right_foot.stl"
               scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="dark_grey">
@@ -219,7 +216,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://pady_robot/meshes/collision/foot_right.stl"
+        <mesh filename="package://pady_robot/meshes/visual/right_foot.stl"
               scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
@@ -263,7 +260,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://pady_robot/meshes/collision/thigh_left.stl"
+        <mesh filename="package://pady_robot/meshes/visual/thigh_left.stl"
               scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
@@ -271,7 +268,7 @@
       <mass value="0.437"/>
       <origin xyz="0 0 -0.0475" rpy="0 0 0"/>
       <inertia ixx="0.009162" ixy="0.0" ixz="0.0"
-               iyy="0.027024" iyz="0.0"
+               iyy="0.009162" iyz="0.0"
                izz="0.000058"/>
     </inertial>
   </link>
@@ -307,7 +304,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://pady_robot/meshes/collision/shin_left.stl"
+        <mesh filename="package://pady_robot/meshes/visual/shin_left.stl"
               scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
@@ -315,7 +312,7 @@
       <mass value="0.350"/>
       <origin xyz="0 0 -0.032" rpy="0 0 0"/>
       <inertia ixx="0.007338" ixy="0.0" ixz="0.0"
-               iyy="0.023925" iyz="0.0"
+               iyy="0.007338" iyz="0.0"
                izz="0.000047"/>
     </inertial>
   </link>
@@ -340,7 +337,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://pady_robot/meshes/visual/foot_left.stl"
+        <mesh filename="package://pady_robot/meshes/visual/left_foot.stl"
               scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="dark_grey"/>
@@ -348,7 +345,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://pady_robot/meshes/collision/foot_left.stl"
+        <mesh filename="package://pady_robot/meshes/visual/left_foot.stl"
               scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
@@ -392,6 +389,12 @@
     <kp>1000000.0</kp>
     <kd>100.0</kd>
     <material>Gazebo/DarkGrey</material>
+  </gazebo>
+
+  <!-- Publish joint states from Gazebo so ros_gz_bridge can bridge them to ROS -->
+  <gazebo>
+    <plugin filename="gz-sim-joint-state-publisher-system"
+            name="gz::sim::systems::JointStatePublisher"/>
   </gazebo>
 
   <!-- Leg materials (visual only in Gazebo) -->
