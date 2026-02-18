@@ -1,0 +1,35 @@
+[0.012s] Invoking command in '/home/elec330-admin/PaDy-bipedal-robot/build/pady_robot': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --build /home/elec330-admin/PaDy-bipedal-robot/build/pady_robot -- -j4 -l4
+[0.055s] Invoked command in '/home/elec330-admin/PaDy-bipedal-robot/build/pady_robot' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --build /home/elec330-admin/PaDy-bipedal-robot/build/pady_robot -- -j4 -l4
+[0.066s] Invoking command in '/home/elec330-admin/PaDy-bipedal-robot/build/pady_robot': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --install /home/elec330-admin/PaDy-bipedal-robot/build/pady_robot
+[0.076s] -- Install configuration: ""
+[0.076s] -- Up-to-date: /home/elec330-admin/PaDy-bipedal-robot/install/pady_robot/share/pady_robot/urdf
+[0.076s] -- Installing: /home/elec330-admin/PaDy-bipedal-robot/install/pady_robot/share/pady_robot/urdf/pady.urdf
+[0.076s] -- Up-to-date: /home/elec330-admin/PaDy-bipedal-robot/install/pady_robot/share/pady_robot/meshes
+[0.076s] -- Up-to-date: /home/elec330-admin/PaDy-bipedal-robot/install/pady_robot/share/pady_robot/meshes/visual
+[0.076s] -- Up-to-date: /home/elec330-admin/PaDy-bipedal-robot/install/pady_robot/share/pady_robot/meshes/visual/right_foot.stl
+[0.077s] -- Up-to-date: /home/elec330-admin/PaDy-bipedal-robot/install/pady_robot/share/pady_robot/meshes/visual/thigh_right.stl
+[0.077s] -- Up-to-date: /home/elec330-admin/PaDy-bipedal-robot/install/pady_robot/share/pady_robot/meshes/visual/shin_left.stl
+[0.077s] -- Up-to-date: /home/elec330-admin/PaDy-bipedal-robot/install/pady_robot/share/pady_robot/meshes/visual/shin_right.stl
+[0.077s] -- Up-to-date: /home/elec330-admin/PaDy-bipedal-robot/install/pady_robot/share/pady_robot/meshes/visual/left_foot.stl
+[0.077s] -- Up-to-date: /home/elec330-admin/PaDy-bipedal-robot/install/pady_robot/share/pady_robot/meshes/visual/base_link.stl
+[0.077s] -- Up-to-date: /home/elec330-admin/PaDy-bipedal-robot/install/pady_robot/share/pady_robot/meshes/visual/thigh_left.stl
+[0.077s] -- Up-to-date: /home/elec330-admin/PaDy-bipedal-robot/install/pady_robot/share/pady_robot/worlds
+[0.077s] -- Up-to-date: /home/elec330-admin/PaDy-bipedal-robot/install/pady_robot/share/pady_robot/worlds/slope_3deg.sdf
+[0.077s] -- Up-to-date: /home/elec330-admin/PaDy-bipedal-robot/install/pady_robot/share/pady_robot/launch
+[0.077s] -- Up-to-date: /home/elec330-admin/PaDy-bipedal-robot/install/pady_robot/share/pady_robot/launch/spawn_pady.launch.py
+[0.077s] -- Up-to-date: /home/elec330-admin/PaDy-bipedal-robot/install/pady_robot/share/ament_index/resource_index/package_run_dependencies/pady_robot
+[0.078s] -- Up-to-date: /home/elec330-admin/PaDy-bipedal-robot/install/pady_robot/share/ament_index/resource_index/parent_prefix_path/pady_robot
+[0.078s] -- Up-to-date: /home/elec330-admin/PaDy-bipedal-robot/install/pady_robot/share/pady_robot/environment/ament_prefix_path.sh
+[0.078s] -- Up-to-date: /home/elec330-admin/PaDy-bipedal-robot/install/pady_robot/share/pady_robot/environment/ament_prefix_path.dsv
+[0.078s] -- Up-to-date: /home/elec330-admin/PaDy-bipedal-robot/install/pady_robot/share/pady_robot/environment/path.sh
+[0.078s] -- Up-to-date: /home/elec330-admin/PaDy-bipedal-robot/install/pady_robot/share/pady_robot/environment/path.dsv
+[0.078s] -- Up-to-date: /home/elec330-admin/PaDy-bipedal-robot/install/pady_robot/share/pady_robot/local_setup.bash
+[0.078s] -- Up-to-date: /home/elec330-admin/PaDy-bipedal-robot/install/pady_robot/share/pady_robot/local_setup.sh
+[0.078s] -- Up-to-date: /home/elec330-admin/PaDy-bipedal-robot/install/pady_robot/share/pady_robot/local_setup.zsh
+[0.078s] -- Up-to-date: /home/elec330-admin/PaDy-bipedal-robot/install/pady_robot/share/pady_robot/local_setup.dsv
+[0.078s] -- Installing: /home/elec330-admin/PaDy-bipedal-robot/install/pady_robot/share/pady_robot/package.dsv
+[0.078s] -- Up-to-date: /home/elec330-admin/PaDy-bipedal-robot/install/pady_robot/share/ament_index/resource_index/packages/pady_robot
+[0.078s] -- Up-to-date: /home/elec330-admin/PaDy-bipedal-robot/install/pady_robot/share/pady_robot/cmake/pady_robotConfig.cmake
+[0.079s] -- Up-to-date: /home/elec330-admin/PaDy-bipedal-robot/install/pady_robot/share/pady_robot/cmake/pady_robotConfig-version.cmake
+[0.079s] -- Up-to-date: /home/elec330-admin/PaDy-bipedal-robot/install/pady_robot/share/pady_robot/package.xml
+[0.079s] Invoked command in '/home/elec330-admin/PaDy-bipedal-robot/build/pady_robot' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --install /home/elec330-admin/PaDy-bipedal-robot/build/pady_robot

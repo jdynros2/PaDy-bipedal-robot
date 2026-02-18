@@ -1,3 +1,4 @@
+/home/elec330-admin/PaDy-bipedal-robot/install/pady_robot/share/pady_robot/urdf/pady_simplified.urdf
 /home/elec330-admin/PaDy-bipedal-robot/install/pady_robot/share/pady_robot/urdf/pady.urdf
 /home/elec330-admin/PaDy-bipedal-robot/install/pady_robot/share/pady_robot/meshes/visual/right_foot.stl
 /home/elec330-admin/PaDy-bipedal-robot/install/pady_robot/share/pady_robot/meshes/visual/thigh_right.stl
@@ -8,6 +9,7 @@
 /home/elec330-admin/PaDy-bipedal-robot/install/pady_robot/share/pady_robot/meshes/visual/thigh_left.stl
 /home/elec330-admin/PaDy-bipedal-robot/install/pady_robot/share/pady_robot/worlds/slope_3deg.sdf
 /home/elec330-admin/PaDy-bipedal-robot/install/pady_robot/share/pady_robot/launch/spawn_pady.launch.py
+/home/elec330-admin/PaDy-bipedal-robot/install/pady_robot/share/pady_robot/launch/rviz_display.launch.py
 /home/elec330-admin/PaDy-bipedal-robot/install/pady_robot/share/ament_index/resource_index/package_run_dependencies/pady_robot
 /home/elec330-admin/PaDy-bipedal-robot/install/pady_robot/share/ament_index/resource_index/parent_prefix_path/pady_robot
 /home/elec330-admin/PaDy-bipedal-robot/install/pady_robot/share/pady_robot/environment/ament_prefix_path.sh

@@ -1,0 +1,245 @@
+<?xml version="1.0"?>
+<!-- PaDy Bipedal Walker URDF -->
+<!-- Adjust origins in joints to position correctly in Gazebo -->
+<!-- Axis "0 1 0" for sagittal plane swing (forward/backward) -->
+
+<robot name="pady">
+
+  <!-- Base Link (Hip/Torso) -->
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pady_robot/meshes/visual/base_link.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="blue"><color rgba="0.2 0.4 0.8 1.0"/></material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pady_robot/meshes/visual/base_link.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="1.600"/>
+      <origin xyz="0 0 -0.015" rpy="0 0 0"/>
+      <inertia ixx="0.002133" ixy="0.0" ixz="0.0" iyy="0.006667" iyz="0.0" izz="0.008373"/>
+    </inertial>
+  </link>
+
+  <!-- Right Thigh -->
+  <link name="thigh_right">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pady_robot/meshes/visual/thigh_right.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="grey"><color rgba="0.7 0.7 0.7 1.0"/></material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pady_robot/meshes/visual/thigh_right.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.437"/>
+      <origin xyz="0 0 -0.0475" rpy="0 0 0"/>
+      <inertia ixx="0.009162" ixy="0.0" ixz="0.0" iyy="0.009162" iyz="0.0" izz="0.000058"/>
+    </inertial>
+  </link>
+
+  <!-- Hip Joint Right -->
+  <!-- Adjust xyz to position joint correctly -->
+  <joint name="hip_joint_right" type="revolute">
+    <parent link="base_link"/>
+    <child link="thigh_right"/>
+    <origin xyz="0 -0.10786 -0.017" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="0" lower="-0.5236" upper="0.5236" velocity="10.0"/>
+    <dynamics damping="0.001" friction="0.001"/>
+  </joint>
+
+  <!-- Right Shin -->
+  <link name="shin_right">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pady_robot/meshes/visual/shin_right.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="grey"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pady_robot/meshes/visual/shin_right.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.350"/>
+      <origin xyz="0 0 -0.032" rpy="0 0 0"/>
+      <inertia ixx="0.007338" ixy="0.0" ixz="0.0" iyy="0.007338" iyz="0.0" izz="0.000047"/>
+    </inertial>
+  </link>
+
+  <!-- Knee Joint Right -->
+  <!-- Adjust xyz if knee position wrong -->
+  <joint name="knee_joint_right" type="revolute">
+    <parent link="thigh_right"/>
+    <child link="shin_right"/>
+    <origin xyz="0 0 -0.500" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="0" lower="0.0" upper="1.1345" velocity="10.0"/>
+    <dynamics damping="0.001" friction="0.001"/>
+  </joint>
+
+  <!-- Right Foot -->
+  <link name="foot_right">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pady_robot/meshes/visual/right_foot.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="dark_grey"><color rgba="0.3 0.3 0.3 1.0"/></material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pady_robot/meshes/visual/right_foot.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.175"/>
+      <origin xyz="0.040 0 -0.015" rpy="0 0 0"/>
+      <inertia ixx="0.000118" ixy="0.0" ixz="0.0" iyy="0.000299" iyz="0.0" izz="0.000391"/>
+    </inertial>
+  </link>
+
+  <!-- Foot Joint Right -->
+  <joint name="foot_joint_right" type="fixed">
+    <parent link="shin_right"/>
+    <child link="foot_right"/>
+    <origin xyz="0.020 0 -0.500" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Left Thigh -->
+  <link name="thigh_left">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pady_robot/meshes/visual/thigh_left.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="grey"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pady_robot/meshes/visual/thigh_left.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.437"/>
+      <origin xyz="0 0 -0.0475" rpy="0 0 0"/>
+      <inertia ixx="0.009162" ixy="0.0" ixz="0.0" iyy="0.009162" iyz="0.0" izz="0.000058"/>
+    </inertial>
+  </link>
+
+  <!-- Hip Joint Left -->
+  <joint name="hip_joint_left" type="revolute">
+    <parent link="base_link"/>
+    <child link="thigh_left"/>
+    <origin xyz="0 0.10786 -0.017" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="0" lower="-0.5236" upper="0.5236" velocity="10.0"/>
+    <dynamics damping="0.001" friction="0.001"/>
+  </joint>
+
+  <!-- Left Shin -->
+  <link name="shin_left">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pady_robot/meshes/visual/shin_left.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="grey"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pady_robot/meshes/visual/shin_left.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.350"/>
+      <origin xyz="0 0 -0.032" rpy="0 0 0"/>
+      <inertia ixx="0.007338" ixy="0.0" ixz="0.0" iyy="0.007338" iyz="0.0" izz="0.000047"/>
+    </inertial>
+  </link>
+
+  <!-- Knee Joint Left -->
+  <joint name="knee_joint_left" type="revolute">
+    <parent link="thigh_left"/>
+    <child link="shin_left"/>
+    <origin xyz="0 0 -0.500" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="0" lower="0.0" upper="1.1345" velocity="10.0"/>
+    <dynamics damping="0.001" friction="0.001"/>
+  </joint>
+
+  <!-- Left Foot -->
+  <link name="foot_left">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pady_robot/meshes/visual/left_foot.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="dark_grey"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://pady_robot/meshes/visual/left_foot.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.175"/>
+      <origin xyz="0.040 0 -0.015" rpy="0 0 0"/>
+      <inertia ixx="0.000118" ixy="0.0" ixz="0.0" iyy="0.000299" iyz="0.0" izz="0.000391"/>
+    </inertial>
+  </link>
+
+  <!-- Foot Joint Left -->
+  <joint name="foot_joint_left" type="fixed">
+    <parent link="shin_left"/>
+    <child link="foot_left"/>
+    <origin xyz="0.020 0 -0.500" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Gazebo Properties -->
+  <gazebo reference="foot_right">
+    <mu1>0.8</mu1>
+    <mu2>0.8</mu2>
+    <kp>1000000.0</kp>
+    <kd>100.0</kd>
+    <material>Gazebo/DarkGrey</material>
+  </gazebo>
+
+  <gazebo reference="foot_left">
+    <mu1>0.8</mu1>
+    <mu2>0.8</mu2>
+    <kp>1000000.0</kp>
+    <kd>100.0</kd>
+    <material>Gazebo/DarkGrey</material>
+  </gazebo>
+
+  <gazebo>
+    <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher"/>
+  </gazebo>
+
+  <gazebo reference="base_link"><material>Gazebo/Blue</material></gazebo>
+  <gazebo reference="thigh_right"><material>Gazebo/Grey</material></gazebo>
+  <gazebo reference="shin_right"><material>Gazebo/Grey</material></gazebo>
+  <gazebo reference="thigh_left"><material>Gazebo/Grey</material></gazebo>
+  <gazebo reference="shin_left"><material>Gazebo/Grey</material></gazebo>
+
+</robot>
