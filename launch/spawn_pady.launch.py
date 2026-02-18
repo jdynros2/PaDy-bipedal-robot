@@ -10,7 +10,7 @@ def generate_launch_description():
 
     # ── Paths ──────────────────────────────────────────────────────────
     pkg_dir    = get_package_share_directory('pady_robot')
-    urdf_path  = os.path.join(pkg_dir, 'urdf',   'pady.urdf')
+    urdf_path  = os.path.join(pkg_dir, 'urdf',   'pady_simplified.urdf')
     world_path = os.path.join(pkg_dir, 'worlds', 'slope_3deg.sdf')
 
     # Read URDF as string (needed by robot_state_publisher)
@@ -37,7 +37,7 @@ def generate_launch_description():
 
     # ── 1. Start Gazebo with slope world ───────────────────────────────
     gazebo = ExecuteProcess(
-        cmd=['gz', 'sim', '-r', world_path, '-v', '3'],
+        cmd=['gz', 'sim', '-s', world_path, '-v', '3'],
         output='screen'
     )
 

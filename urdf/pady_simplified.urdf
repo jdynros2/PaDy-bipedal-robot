@@ -50,11 +50,13 @@
   </link>
 
   <!-- Hip Joint Right -->
-  <!-- Adjust xyz to position joint correctly -->
+  <!-- EXAMPLE CHANGE: Adjusted xyz from "0 -0.10786 -0.017" to "0 -0.12 -0.02" -->
+  <!-- This moves the hip joint 1.2cm left (more negative Y) and 0.3mm down -->
+  <!-- Effect: Increases hip width, lowers joint position -->
   <joint name="hip_joint_right" type="revolute">
     <parent link="base_link"/>
     <child link="thigh_right"/>
-    <origin xyz="0 -0.10786 -0.017" rpy="0 0 0"/>
+    <origin xyz="0 -0.12 -0.02" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
     <limit effort="0" lower="-0.5236" upper="0.5236" velocity="10.0"/>
     <dynamics damping="0.001" friction="0.001"/>
@@ -83,11 +85,13 @@
   </link>
 
   <!-- Knee Joint Right -->
-  <!-- Adjust xyz if knee position wrong -->
+  <!-- EXAMPLE CHANGE: Adjusted xyz from "0 0 -0.500" to "0 0 -0.45" -->
+  <!-- This moves the knee joint 5cm higher (less negative Z) -->
+  <!-- Effect: Shortens the thigh length from 50cm to 45cm -->
   <joint name="knee_joint_right" type="revolute">
     <parent link="thigh_right"/>
     <child link="shin_right"/>
-    <origin xyz="0 0 -0.500" rpy="0 0 0"/>
+    <origin xyz="0 0 -0.45" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
     <limit effort="0" lower="0.0" upper="1.1345" velocity="10.0"/>
     <dynamics damping="0.001" friction="0.001"/>
@@ -116,10 +120,16 @@
   </link>
 
   <!-- Foot Joint Right -->
-  <joint name="foot_joint_right" type="fixed">
+  <!-- EXAMPLE CHANGE: Changed type from "fixed" to "revolute" -->
+  <!-- This adds ankle rotation capability -->
+  <!-- Effect: Foot can now rotate around Y-axis (pitch) -->
+  <joint name="foot_joint_right" type="revolute">
     <parent link="shin_right"/>
     <child link="foot_right"/>
     <origin xyz="0.020 0 -0.500" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="0" lower="-0.5" upper="0.5" velocity="5.0"/>
+    <dynamics damping="0.01" friction="0.01"/>
   </joint>
 
   <!-- Left Thigh -->

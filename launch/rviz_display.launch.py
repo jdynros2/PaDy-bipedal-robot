@@ -10,7 +10,7 @@ def generate_launch_description():
 
     # ── Paths ──────────────────────────────────────────────────────────
     pkg_dir    = get_package_share_directory('pady_robot')
-    urdf_path  = os.path.join(pkg_dir, 'urdf',   'pady.urdf')
+    urdf_path  = os.path.join(pkg_dir, 'urdf',   'pady_simplified.urdf')
 
     # Read URDF as string
     with open(urdf_path, 'r') as f:
