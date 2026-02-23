@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/elec330-admin/PaDy-bipedal-robot
+CMAKE_SOURCE_DIR = /home/elec330-admin/ros2_ws/src/pady_robot
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/elec330-admin/PaDy-bipedal-robot/build/pady_robot
+CMAKE_BINARY_DIR = /home/elec330-admin/ros2_ws/src/pady_robot/build/pady_robot
 
 # Utility rule file for uninstall.
 
@@ -78,6 +78,6 @@ CMakeFiles/uninstall.dir/clean:
 .PHONY : CMakeFiles/uninstall.dir/clean
 
 CMakeFiles/uninstall.dir/depend:
-	cd /home/elec330-admin/PaDy-bipedal-robot/build/pady_robot && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/elec330-admin/PaDy-bipedal-robot /home/elec330-admin/PaDy-bipedal-robot /home/elec330-admin/PaDy-bipedal-robot/build/pady_robot /home/elec330-admin/PaDy-bipedal-robot/build/pady_robot /home/elec330-admin/PaDy-bipedal-robot/build/pady_robot/CMakeFiles/uninstall.dir/DependInfo.cmake "--color=$(COLOR)"
+	cd /home/elec330-admin/ros2_ws/src/pady_robot/build/pady_robot && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/elec330-admin/ros2_ws/src/pady_robot /home/elec330-admin/ros2_ws/src/pady_robot /home/elec330-admin/ros2_ws/src/pady_robot/build/pady_robot /home/elec330-admin/ros2_ws/src/pady_robot/build/pady_robot /home/elec330-admin/ros2_ws/src/pady_robot/build/pady_robot/CMakeFiles/uninstall.dir/DependInfo.cmake "--color=$(COLOR)"
 .PHONY : CMakeFiles/uninstall.dir/depend
 

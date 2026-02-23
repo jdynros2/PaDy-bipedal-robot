@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/elec330-admin/PaDy-bipedal-robot
+CMAKE_SOURCE_DIR = /home/elec330-admin/ros2_ws/src/pady_robot
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/elec330-admin/PaDy-bipedal-robot/build/pady_robot
+CMAKE_BINARY_DIR = /home/elec330-admin/ros2_ws/src/pady_robot/build/pady_robot
 
 # Utility rule file for pady_robot_uninstall.
 
@@ -67,7 +67,7 @@ include CMakeFiles/pady_robot_uninstall.dir/compiler_depend.make
 include CMakeFiles/pady_robot_uninstall.dir/progress.make
 
 CMakeFiles/pady_robot_uninstall:
-	/usr/bin/cmake -P /home/elec330-admin/PaDy-bipedal-robot/build/pady_robot/ament_cmake_uninstall_target/ament_cmake_uninstall_target.cmake
+	/usr/bin/cmake -P /home/elec330-admin/ros2_ws/src/pady_robot/build/pady_robot/ament_cmake_uninstall_target/ament_cmake_uninstall_target.cmake
 
 pady_robot_uninstall: CMakeFiles/pady_robot_uninstall
 pady_robot_uninstall: CMakeFiles/pady_robot_uninstall.dir/build.make
@@ -82,6 +82,6 @@ CMakeFiles/pady_robot_uninstall.dir/clean:
 .PHONY : CMakeFiles/pady_robot_uninstall.dir/clean
 
 CMakeFiles/pady_robot_uninstall.dir/depend:
-	cd /home/elec330-admin/PaDy-bipedal-robot/build/pady_robot && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/elec330-admin/PaDy-bipedal-robot /home/elec330-admin/PaDy-bipedal-robot /home/elec330-admin/PaDy-bipedal-robot/build/pady_robot /home/elec330-admin/PaDy-bipedal-robot/build/pady_robot /home/elec330-admin/PaDy-bipedal-robot/build/pady_robot/CMakeFiles/pady_robot_uninstall.dir/DependInfo.cmake "--color=$(COLOR)"
+	cd /home/elec330-admin/ros2_ws/src/pady_robot/build/pady_robot && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/elec330-admin/ros2_ws/src/pady_robot /home/elec330-admin/ros2_ws/src/pady_robot /home/elec330-admin/ros2_ws/src/pady_robot/build/pady_robot /home/elec330-admin/ros2_ws/src/pady_robot/build/pady_robot /home/elec330-admin/ros2_ws/src/pady_robot/build/pady_robot/CMakeFiles/pady_robot_uninstall.dir/DependInfo.cmake "--color=$(COLOR)"
 .PHONY : CMakeFiles/pady_robot_uninstall.dir/depend
 

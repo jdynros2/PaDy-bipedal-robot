@@ -1,8 +1,8 @@
-# Install script for directory: /home/elec330-admin/PaDy-bipedal-robot
+# Install script for directory: /home/elec330-admin/ros2_ws/src/pady_robot
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "/home/elec330-admin/PaDy-bipedal-robot/install/pady_robot")
+  set(CMAKE_INSTALL_PREFIX "/home/elec330-admin/ros2_ws/src/pady_robot/install/pady_robot")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -44,19 +44,19 @@ endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/pady_robot" TYPE DIRECTORY FILES
-    "/home/elec330-admin/PaDy-bipedal-robot/urdf"
-    "/home/elec330-admin/PaDy-bipedal-robot/meshes"
-    "/home/elec330-admin/PaDy-bipedal-robot/worlds"
-    "/home/elec330-admin/PaDy-bipedal-robot/launch"
+    "/home/elec330-admin/ros2_ws/src/pady_robot/urdf"
+    "/home/elec330-admin/ros2_ws/src/pady_robot/meshes"
+    "/home/elec330-admin/ros2_ws/src/pady_robot/worlds"
+    "/home/elec330-admin/ros2_ws/src/pady_robot/launch"
     )
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/ament_index/resource_index/package_run_dependencies" TYPE FILE FILES "/home/elec330-admin/PaDy-bipedal-robot/build/pady_robot/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/pady_robot")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/ament_index/resource_index/package_run_dependencies" TYPE FILE FILES "/home/elec330-admin/ros2_ws/src/pady_robot/build/pady_robot/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/pady_robot")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/ament_index/resource_index/parent_prefix_path" TYPE FILE FILES "/home/elec330-admin/PaDy-bipedal-robot/build/pady_robot/ament_cmake_index/share/ament_index/resource_index/parent_prefix_path/pady_robot")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/ament_index/resource_index/parent_prefix_path" TYPE FILE FILES "/home/elec330-admin/ros2_ws/src/pady_robot/build/pady_robot/ament_cmake_index/share/ament_index/resource_index/parent_prefix_path/pady_robot")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
@@ -64,7 +64,7 @@ if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/pady_robot/environment" TYPE FILE FILES "/home/elec330-admin/PaDy-bipedal-robot/build/pady_robot/ament_cmake_environment_hooks/ament_prefix_path.dsv")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/pady_robot/environment" TYPE FILE FILES "/home/elec330-admin/ros2_ws/src/pady_robot/build/pady_robot/ament_cmake_environment_hooks/ament_prefix_path.dsv")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
@@ -72,42 +72,42 @@ if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/pady_robot/environment" TYPE FILE FILES "/home/elec330-admin/PaDy-bipedal-robot/build/pady_robot/ament_cmake_environment_hooks/path.dsv")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/pady_robot/environment" TYPE FILE FILES "/home/elec330-admin/ros2_ws/src/pady_robot/build/pady_robot/ament_cmake_environment_hooks/path.dsv")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/pady_robot" TYPE FILE FILES "/home/elec330-admin/PaDy-bipedal-robot/build/pady_robot/ament_cmake_environment_hooks/local_setup.bash")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/pady_robot" TYPE FILE FILES "/home/elec330-admin/ros2_ws/src/pady_robot/build/pady_robot/ament_cmake_environment_hooks/local_setup.bash")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/pady_robot" TYPE FILE FILES "/home/elec330-admin/PaDy-bipedal-robot/build/pady_robot/ament_cmake_environment_hooks/local_setup.sh")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/pady_robot" TYPE FILE FILES "/home/elec330-admin/ros2_ws/src/pady_robot/build/pady_robot/ament_cmake_environment_hooks/local_setup.sh")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/pady_robot" TYPE FILE FILES "/home/elec330-admin/PaDy-bipedal-robot/build/pady_robot/ament_cmake_environment_hooks/local_setup.zsh")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/pady_robot" TYPE FILE FILES "/home/elec330-admin/ros2_ws/src/pady_robot/build/pady_robot/ament_cmake_environment_hooks/local_setup.zsh")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/pady_robot" TYPE FILE FILES "/home/elec330-admin/PaDy-bipedal-robot/build/pady_robot/ament_cmake_environment_hooks/local_setup.dsv")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/pady_robot" TYPE FILE FILES "/home/elec330-admin/ros2_ws/src/pady_robot/build/pady_robot/ament_cmake_environment_hooks/local_setup.dsv")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/pady_robot" TYPE FILE FILES "/home/elec330-admin/PaDy-bipedal-robot/build/pady_robot/ament_cmake_environment_hooks/package.dsv")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/pady_robot" TYPE FILE FILES "/home/elec330-admin/ros2_ws/src/pady_robot/build/pady_robot/ament_cmake_environment_hooks/package.dsv")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/ament_index/resource_index/packages" TYPE FILE FILES "/home/elec330-admin/PaDy-bipedal-robot/build/pady_robot/ament_cmake_index/share/ament_index/resource_index/packages/pady_robot")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/ament_index/resource_index/packages" TYPE FILE FILES "/home/elec330-admin/ros2_ws/src/pady_robot/build/pady_robot/ament_cmake_index/share/ament_index/resource_index/packages/pady_robot")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/pady_robot/cmake" TYPE FILE FILES
-    "/home/elec330-admin/PaDy-bipedal-robot/build/pady_robot/ament_cmake_core/pady_robotConfig.cmake"
-    "/home/elec330-admin/PaDy-bipedal-robot/build/pady_robot/ament_cmake_core/pady_robotConfig-version.cmake"
+    "/home/elec330-admin/ros2_ws/src/pady_robot/build/pady_robot/ament_cmake_core/pady_robotConfig.cmake"
+    "/home/elec330-admin/ros2_ws/src/pady_robot/build/pady_robot/ament_cmake_core/pady_robotConfig-version.cmake"
     )
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/pady_robot" TYPE FILE FILES "/home/elec330-admin/PaDy-bipedal-robot/package.xml")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/pady_robot" TYPE FILE FILES "/home/elec330-admin/ros2_ws/src/pady_robot/package.xml")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT)
@@ -118,5 +118,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/elec330-admin/PaDy-bipedal-robot/build/pady_robot/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/elec330-admin/ros2_ws/src/pady_robot/build/pady_robot/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

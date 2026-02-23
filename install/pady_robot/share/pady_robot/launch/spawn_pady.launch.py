@@ -10,7 +10,7 @@ def generate_launch_description():
 
     # ── Paths ──────────────────────────────────────────────────────────
     pkg_dir    = get_package_share_directory('pady_robot')
-    urdf_path  = os.path.join(pkg_dir, 'urdf',   'pady.urdf')
+    urdf_path  = os.path.join(pkg_dir, 'urdf',   'pady_simplified.urdf')
     world_path = os.path.join(pkg_dir, 'worlds', 'slope_3deg.sdf')
 
     # Read URDF as string (needed by robot_state_publisher)
@@ -35,9 +35,15 @@ def generate_launch_description():
     )
     use_sim_time = LaunchConfiguration('use_sim_time')
 
-    # ── 1. Start Gazebo with slope world ───────────────────────────────
+    # ── 1. Start Gazebo with slope world (server + GUI) ────────────────
+    # NOTE: do NOT pass -s here; -s starts the server headless (no window).
+    # Without -s, gz sim launches both the physics server and the GUI client.
+    # gz sim 8 (Jazzy) does not accept --run via the Ruby wrapper.
+    # The simulation starts paused; press the Play button in the GUI,
+    # or run:  gz service -s /world/slope_world/control --reqtype gz.msgs.WorldControl
+    #          --reptype gz.msgs.Boolean --timeout 2000 --req 'pause: false'
     gazebo = ExecuteProcess(
-        cmd=['gz', 'sim', '-r', world_path, '-v', '3'],
+        cmd=['gz', 'sim', world_path, '-v', '3'],
         output='screen'
     )
 
@@ -53,7 +59,7 @@ def generate_launch_description():
                 arguments=[
                     '-string', robot_desc_gz,       # absolute file:// URIs for Gazebo
                     '-name',   'pady',              # robot name in Gazebo
-                    '-x',      '0',                 # start of slope
+                    '-x',      '0.25',                 # start of slope
                     '-y',      '0',                 # centered
                     '-z',      '1.40',              # 1.40m: slope surface (0.287) + legs (1.017) + drop clearance
                     '-R',      '0',                 # no roll
