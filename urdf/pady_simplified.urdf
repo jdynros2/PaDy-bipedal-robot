@@ -130,15 +130,16 @@
 
   <link name="foot_right">
     <visual>
-      <!-- CAD joint (−107.86, 1, 20) → offset (−0.020, +0.10786, −0.001) -->
-      <origin xyz="-0.020 0.10786 -0.001" rpy="1.5708 0 1.5708"/>
+      <!-- rpy="0 0 4.71239" = Rz(-90°): CAD-X→-URDF-Y, CAD-Y→URDF-X, CAD-Z→URDF-Z
+           xyz = -Rz(-90°) · P_joint/1000, P_joint=(-107.86, 1, 20)mm → (-0.001, -0.10786, -0.020) -->
+      <origin xyz="0.1175 -0.1085 -0.020" rpy="0 0 4.71239"/>
       <geometry>
         <mesh filename="package://pady_robot/meshes/visual/right_foot.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="dark_grey"><color rgba="0.3 0.3 0.3 1.0"/></material>
     </visual>
     <collision>
-      <origin xyz="-0.020 0.10786 -0.001" rpy="1.5708 0 1.5708"/>
+      <origin xyz="0.1175 -0.1085 -0.020" rpy="0 0 4.71239"/>
       <geometry>
         <mesh filename="package://pady_robot/meshes/visual/right_foot.stl" scale="0.001 0.001 0.001"/>
       </geometry>
@@ -229,15 +230,16 @@
 
   <link name="foot_left">
     <visual>
-      <!-- CAD joint (+107.86, 1, 20) → offset (−0.020, −0.10786, −0.001) -->
-      <origin xyz="-0.020 -0.10786 -0.001" rpy="1.5708 0 1.5708"/>
+      <!-- rpy="0 0 4.71239" = Rz(-90°): xyz = -Rz(-90°) · P_joint/1000
+           P_joint=(+107.86, 1, 20)mm → (-0.001, +0.10786, -0.020) -->
+      <origin xyz="0.1175 0.1097 -0.020" rpy="0 0 4.71239"/>
       <geometry>
         <mesh filename="package://pady_robot/meshes/visual/left_foot.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="dark_grey"/>
     </visual>
     <collision>
-      <origin xyz="-0.020 -0.10786 -0.001" rpy="1.5708 0 1.5708"/>
+      <origin xyz="0.1175 0.1097 -0.020" rpy="0 0 4.71239"/>
       <geometry>
         <mesh filename="package://pady_robot/meshes/visual/left_foot.stl" scale="0.001 0.001 0.001"/>
       </geometry>

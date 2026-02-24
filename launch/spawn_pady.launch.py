@@ -61,7 +61,7 @@ def generate_launch_description():
                     '-name',   'pady',              # robot name in Gazebo
                     '-x',      '0.25',                 # start of slope
                     '-y',      '0',                 # centered
-                    '-z',      '1.55',              # 1.55m: slope surface (0.274) + leg+foot (1.163) + 0.10m drop clearance
+                    '-z',      '1.50',              # 1.50m: slope surface (0.274) + leg+foot (1.084) + 0.10m drop clearance
                     '-R',      '0',                 # no roll
                     '-P',      '0.0524',            # +3deg pitch to match downhill slope (slope goes down in +X)
                     '-Y',      '0',                 # facing down slope
