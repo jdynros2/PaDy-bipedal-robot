@@ -1,15 +1,8 @@
 <?xml version="1.0"?>
-<!--
-  PaDy Simulation World - 3 Degree Slope
-  ========================================
-  10m long x 2m wide slope, tilted -3 degrees
-  High friction surface (mu=0.8) for passive walking
--->
+
 <sdf version="1.9">
   <world name="slope_world">
-
-    <!-- Physics: small timestep for stable passive dynamics -->
-    <!-- type="dart" is the default/recommended engine for Gazebo Harmonic -->
+  
     <physics name="1ms" type="dart">
       <max_step_size>0.001</max_step_size>
       <real_time_factor>1.0</real_time_factor>
