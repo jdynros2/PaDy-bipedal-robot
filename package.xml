@@ -4,9 +4,8 @@
   <name>pady_robot</name>
   <version>1.0.0</version>
   <description>
-    PaDy - Passive Dynamic Bipedal Walker
-    MEng Final Year Project, University of Liverpool
-    1.0m tall, 3.5kg, gravity-powered walking on 3-degree slopes.
+    PaDy - Passive Dynamic Bipedal Walker by Jadyn Ross
+    University of Liverpool
   </description>
   <maintainer email="student@liverpool.ac.uk">Jadyn</maintainer>
   <license>MIT</license>
@@ -17,6 +16,8 @@
   <exec_depend>ros_gz_sim</exec_depend>
   <exec_depend>ros_gz_bridge</exec_depend>
   <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>

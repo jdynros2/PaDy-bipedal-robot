@@ -1,0 +1,57 @@
+[0.011s] Invoking command in '/home/elec330-admin/ros2_ws/src/pady_robot/build/pady_robot': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake /home/elec330-admin/ros2_ws/src/pady_robot -DCMAKE_INSTALL_PREFIX=/home/elec330-admin/ros2_ws/src/pady_robot/install/pady_robot
+[0.144s] -- The C compiler identification is GNU 13.3.0
+[0.263s] -- The CXX compiler identification is GNU 13.3.0
+[0.285s] -- Detecting C compiler ABI info
+[0.390s] -- Detecting C compiler ABI info - done
+[0.401s] -- Check for working C compiler: /usr/bin/cc - skipped
+[0.403s] -- Detecting C compile features
+[0.403s] -- Detecting C compile features - done
+[0.414s] -- Detecting CXX compiler ABI info
+[0.525s] -- Detecting CXX compiler ABI info - done
+[0.535s] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[0.535s] -- Detecting CXX compile features
+[0.536s] -- Detecting CXX compile features - done
+[0.554s] -- Found ament_cmake: 2.5.5 (/opt/ros/jazzy/share/ament_cmake/cmake)
+[0.701s] -- Found Python3: /usr/bin/python3 (found version "3.12.3") found components: Interpreter 
+[0.946s] -- Configuring done (0.9s)
+[0.950s] -- Generating done (0.0s)
+[0.954s] -- Build files have been written to: /home/elec330-admin/ros2_ws/src/pady_robot/build/pady_robot
+[0.959s] Invoked command in '/home/elec330-admin/ros2_ws/src/pady_robot/build/pady_robot' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake /home/elec330-admin/ros2_ws/src/pady_robot -DCMAKE_INSTALL_PREFIX=/home/elec330-admin/ros2_ws/src/pady_robot/install/pady_robot
+[0.960s] Invoking command in '/home/elec330-admin/ros2_ws/src/pady_robot/build/pady_robot': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --build /home/elec330-admin/ros2_ws/src/pady_robot/build/pady_robot -- -j4 -l4
+[1.002s] Invoked command in '/home/elec330-admin/ros2_ws/src/pady_robot/build/pady_robot' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --build /home/elec330-admin/ros2_ws/src/pady_robot/build/pady_robot -- -j4 -l4
+[1.013s] Invoking command in '/home/elec330-admin/ros2_ws/src/pady_robot/build/pady_robot': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --install /home/elec330-admin/ros2_ws/src/pady_robot/build/pady_robot
+[1.022s] -- Install configuration: ""
+[1.022s] -- Up-to-date: /home/elec330-admin/ros2_ws/src/pady_robot/install/pady_robot/share/pady_robot/urdf
+[1.022s] -- Installing: /home/elec330-admin/ros2_ws/src/pady_robot/install/pady_robot/share/pady_robot/urdf/pady_simplified.urdf
+[1.023s] -- Installing: /home/elec330-admin/ros2_ws/src/pady_robot/install/pady_robot/share/pady_robot/urdf/pady.urdf
+[1.023s] -- Up-to-date: /home/elec330-admin/ros2_ws/src/pady_robot/install/pady_robot/share/pady_robot/meshes
+[1.023s] -- Up-to-date: /home/elec330-admin/ros2_ws/src/pady_robot/install/pady_robot/share/pady_robot/meshes/visual
+[1.023s] -- Installing: /home/elec330-admin/ros2_ws/src/pady_robot/install/pady_robot/share/pady_robot/meshes/visual/right_foot.stl
+[1.023s] -- Up-to-date: /home/elec330-admin/ros2_ws/src/pady_robot/install/pady_robot/share/pady_robot/meshes/visual/thigh_right.stl
+[1.023s] -- Up-to-date: /home/elec330-admin/ros2_ws/src/pady_robot/install/pady_robot/share/pady_robot/meshes/visual/shin_left.stl
+[1.023s] -- Up-to-date: /home/elec330-admin/ros2_ws/src/pady_robot/install/pady_robot/share/pady_robot/meshes/visual/shin_right.stl
+[1.024s] -- Installing: /home/elec330-admin/ros2_ws/src/pady_robot/install/pady_robot/share/pady_robot/meshes/visual/left_foot.stl
+[1.024s] -- Up-to-date: /home/elec330-admin/ros2_ws/src/pady_robot/install/pady_robot/share/pady_robot/meshes/visual/base_link.stl
+[1.025s] -- Up-to-date: /home/elec330-admin/ros2_ws/src/pady_robot/install/pady_robot/share/pady_robot/meshes/visual/thigh_left.stl
+[1.025s] -- Up-to-date: /home/elec330-admin/ros2_ws/src/pady_robot/install/pady_robot/share/pady_robot/worlds
+[1.025s] -- Installing: /home/elec330-admin/ros2_ws/src/pady_robot/install/pady_robot/share/pady_robot/worlds/slope_3deg.sdf
+[1.025s] -- Up-to-date: /home/elec330-admin/ros2_ws/src/pady_robot/install/pady_robot/share/pady_robot/launch
+[1.025s] -- Installing: /home/elec330-admin/ros2_ws/src/pady_robot/install/pady_robot/share/pady_robot/launch/spawn_pady.launch.py
+[1.025s] -- Installing: /home/elec330-admin/ros2_ws/src/pady_robot/install/pady_robot/share/pady_robot/config
+[1.025s] -- Installing: /home/elec330-admin/ros2_ws/src/pady_robot/install/pady_robot/share/pady_robot/config/bridge.yaml
+[1.025s] -- Up-to-date: /home/elec330-admin/ros2_ws/src/pady_robot/install/pady_robot/share/ament_index/resource_index/package_run_dependencies/pady_robot
+[1.025s] -- Up-to-date: /home/elec330-admin/ros2_ws/src/pady_robot/install/pady_robot/share/ament_index/resource_index/parent_prefix_path/pady_robot
+[1.026s] -- Up-to-date: /home/elec330-admin/ros2_ws/src/pady_robot/install/pady_robot/share/pady_robot/environment/ament_prefix_path.sh
+[1.026s] -- Up-to-date: /home/elec330-admin/ros2_ws/src/pady_robot/install/pady_robot/share/pady_robot/environment/ament_prefix_path.dsv
+[1.026s] -- Up-to-date: /home/elec330-admin/ros2_ws/src/pady_robot/install/pady_robot/share/pady_robot/environment/path.sh
+[1.026s] -- Up-to-date: /home/elec330-admin/ros2_ws/src/pady_robot/install/pady_robot/share/pady_robot/environment/path.dsv
+[1.026s] -- Up-to-date: /home/elec330-admin/ros2_ws/src/pady_robot/install/pady_robot/share/pady_robot/local_setup.bash
+[1.026s] -- Up-to-date: /home/elec330-admin/ros2_ws/src/pady_robot/install/pady_robot/share/pady_robot/local_setup.sh
+[1.026s] -- Up-to-date: /home/elec330-admin/ros2_ws/src/pady_robot/install/pady_robot/share/pady_robot/local_setup.zsh
+[1.026s] -- Up-to-date: /home/elec330-admin/ros2_ws/src/pady_robot/install/pady_robot/share/pady_robot/local_setup.dsv
+[1.026s] -- Installing: /home/elec330-admin/ros2_ws/src/pady_robot/install/pady_robot/share/pady_robot/package.dsv
+[1.026s] -- Up-to-date: /home/elec330-admin/ros2_ws/src/pady_robot/install/pady_robot/share/ament_index/resource_index/packages/pady_robot
+[1.026s] -- Up-to-date: /home/elec330-admin/ros2_ws/src/pady_robot/install/pady_robot/share/pady_robot/cmake/pady_robotConfig.cmake
+[1.026s] -- Up-to-date: /home/elec330-admin/ros2_ws/src/pady_robot/install/pady_robot/share/pady_robot/cmake/pady_robotConfig-version.cmake
+[1.027s] -- Up-to-date: /home/elec330-admin/ros2_ws/src/pady_robot/install/pady_robot/share/pady_robot/package.xml
+[1.027s] Invoked command in '/home/elec330-admin/ros2_ws/src/pady_robot/build/pady_robot' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --install /home/elec330-admin/ros2_ws/src/pady_robot/build/pady_robot

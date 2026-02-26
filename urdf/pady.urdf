@@ -1,421 +1,363 @@
 <?xml version="1.0"?>
-<!--
-  PaDy - Passive Dynamic Bipedal Walker
-  ======================================
-  Author: Jadyn (University of Liverpool)
-  
-  DESIGN PARAMETERS:
-  - Total height:   ~1.017m
-  - Leg length:     1.000m (thigh 0.500m + shin 0.500m)
-  - Hip width:      0.21572m (center to center)
-  - Total mass:     3.524 kg
-  - Target slope:   3 degrees (0.0524 rad)
-  
-  MASS DISTRIBUTION (Morales-Cruz 2014 optimisation):
-  - Shin COM:  93.6% from ankle (proximal, near knee)
-  - Thigh COM:  9.5% from hip   (proximal, near hip)
-  - Knee-centered mass = key for stable passive gait
-  
-  COORDINATE SYSTEM:
-  - Origin: center of hip joint level
-  - +X = forward (walking direction)
-  - +Y = left
-  - +Z = up
-  
-  JOINT HIERARCHY:
-  base_link (hip) [free-floating root - Gazebo treats root as 6 DOF]
-      ├─ thigh_right [hip_joint_right - revolute]
-      │   └─ shin_right [knee_joint_right - revolute]
-      │       └─ foot_right [foot_joint_right - fixed]
-      └─ thigh_left [hip_joint_left - revolute]
-          └─ shin_left [knee_joint_left - revolute]
-              └─ foot_left [foot_joint_left - fixed]
+<!-- PaDy Bipedal Walker URDF
+     ===================================================================
+     MESH COORDINATE SYSTEM NOTE
+     ===================================================================
+     All STL files were exported from Fusion 360 as a single assembly in
+     absolute CAD world coordinates (Y-up convention).  In the CAD frame:
+       CAD X → URDF Y  (lateral, +left)
+       CAD Y → URDF Z  (vertical, +up)
+       CAD Z → URDF X  (sagittal, +forward)
+
+     Every visual/collision <origin> therefore carries:
+       rpy="1.5708 0 1.5708"   (Rx=90°, Rz=90° — maps CAD axes to URDF)
+       xyz = −R · P_joint_cad  (cancels each joint's absolute CAD position)
+
+     Joint positions read from STL bounding boxes (mm, CAD frame):
+       base_link origin : (0,    1018, 0)
+       hip joints       : (±107.86, 1001, 0)   [+x = left, −x = right]
+       knee joints      : (±107.86,  501, 0)
+       foot joints      : (±107.86,    1, 20)  [20 mm forward in CAD Z]
+
+     Hip / knee joint origins and limits define the kinematics and are
+     correct — only the visual/collision origins needed fixing.
 -->
 
 <robot name="pady">
 
-  <!-- ============================================================
-       NOTE: No world link or floating joint.
-       In Gazebo Harmonic the URDF root link is automatically free-floating
-       (6 DOF). Spawn position is set by the launch file arguments.
-       A world link + floating joint causes PoseRelativeToGraph errors
-       when Gazebo converts URDF → SDF internally.
-       ============================================================ -->
-
-  <!-- ============================================================
-       BASE LINK (HIP / TORSO)
-       Mass: 1.600 kg  (45.7% of total - heaviest part)
-       COM:  15mm below hip joint center
-       Role: Provides stability, connects both legs
-       ============================================================ -->
-
+  <!-- ═══════════════════════════════════════════════════════════════
+       BASE LINK  (hip / pelvis)
+       ═══════════════════════════════════════════════════════════════ -->
   <link name="base_link">
     <visual>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <!-- CAD origin (0,1018,0) mm → offset (0, 0, -1.018) m -->
+      <origin xyz="0 0 -1.018" rpy="1.5708 0 1.5708"/>
       <geometry>
-        <!-- scale converts Fusion mm → meters -->
-        <mesh filename="package://pady_robot/meshes/visual/base_link.stl"
-              scale="0.001 0.001 0.001"/>
+        <mesh filename="package://pady_robot/meshes/visual/base_link.stl" scale="0.001 0.001 0.001"/>
       </geometry>
-      <material name="blue">
-        <color rgba="0.2 0.4 0.8 1.0"/>
-      </material>
+      <material name="blue"><color rgba="0.2 0.4 0.8 1.0"/></material>
     </visual>
     <collision>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <origin xyz="0 0 -1.018" rpy="1.5708 0 1.5708"/>
       <geometry>
-        <!-- No separate collision mesh: reuse visual mesh (meshes/collision/ does not exist) -->
-        <mesh filename="package://pady_robot/meshes/visual/base_link.stl"
-              scale="0.001 0.001 0.001"/>
+        <mesh filename="package://pady_robot/meshes/visual/base_link.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
     <inertial>
       <mass value="1.600"/>
-      <!-- COM: centered laterally, 15mm below hip joint -->
       <origin xyz="0 0 -0.015" rpy="0 0 0"/>
-      <!-- Box approximation: 220mm wide x 120mm deep x 40mm tall -->
-      <inertia ixx="0.002133" ixy="0.0" ixz="0.0"
-               iyy="0.006667" iyz="0.0"
-               izz="0.008373"/>
+      <inertia ixx="0.002133" ixy="0.0" ixz="0.0" iyy="0.006667" iyz="0.0" izz="0.008373"/>
     </inertial>
   </link>
 
+  <!-- ═══════════════════════════════════════════════════════════════
+       RIGHT LEG
+       ═══════════════════════════════════════════════════════════════ -->
 
-  <!-- ============================================================
-       RIGHT THIGH
-       Mass: 0.437 kg
-       COM:  47.5mm from hip (9.5% of 500mm - near top)
-             This TOP-HEAVY distribution is critical for gait!
-       Length: 500mm (hip joint to knee joint)
-       ============================================================ -->
+  <!-- Hip Joint Right – revolute, sagittal plane (Y-axis) -->
+  <joint name="hip_joint_right" type="revolute">
+    <parent link="base_link"/>
+    <child link="thigh_right"/>
+    <origin xyz="0 -0.10786 -0.017" rpy="0 0.1 0"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="100" lower="-1.57" upper="1.57" velocity="10.0"/>
+    <dynamics damping="0.001" friction="0.001"/>
+  </joint>
 
   <link name="thigh_right">
     <visual>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <!-- CAD joint (−107.86, 1001, 0) → offset (0, +0.10786, −1.001) -->
+      <origin xyz="0 0.10786 -1.001" rpy="1.5708 0 1.5708"/>
       <geometry>
-        <mesh filename="package://pady_robot/meshes/visual/thigh_right.stl"
-              scale="0.001 0.001 0.001"/>
+        <mesh filename="package://pady_robot/meshes/visual/thigh_right.stl" scale="0.001 0.001 0.001"/>
       </geometry>
-      <material name="grey">
-        <color rgba="0.7 0.7 0.7 1.0"/>
-      </material>
+      <material name="grey"><color rgba="0.7 0.7 0.7 1.0"/></material>
     </visual>
     <collision>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <origin xyz="0 0.10786 -1.001" rpy="1.5708 0 1.5708"/>
       <geometry>
-        <mesh filename="package://pady_robot/meshes/visual/thigh_right.stl"
-              scale="0.001 0.001 0.001"/>
+        <mesh filename="package://pady_robot/meshes/visual/thigh_right.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
     <inertial>
       <mass value="0.437"/>
-      <!-- COM: 47.5mm from hip (top), centered on leg axis -->
       <origin xyz="0 0 -0.0475" rpy="0 0 0"/>
-      <!-- Inertia about COM. For cylindrical segment along Z: ixx=iyy=(1/12)*m*(3r²+L²).
-           Previous iyy=0.027024 was computed about the geometric midpoint, not the COM
-           (off by m*(0.2025)²=0.017862). Corrected to match ixx. -->
-      <inertia ixx="0.009162" ixy="0.0" ixz="0.0"
-               iyy="0.009162" iyz="0.0"
-               izz="0.000058"/>
+      <inertia ixx="0.009162" ixy="0.0" ixz="0.0" iyy="0.009162" iyz="0.0" izz="0.000058"/>
     </inertial>
   </link>
 
-  <!-- Hip Joint RIGHT
-       Location: 107.86mm right of center, 17mm below top of hip
-       Type: Revolute (1 DOF sagittal plane swing)
-       Limits: -30deg to +30deg (passive walker range)
-       Damping: 0.001 Nm.s/rad (near frictionless - essential for passive walking!) -->
-  <joint name="hip_joint_right" type="revolute">
-    <parent link="base_link"/>
-    <child link="thigh_right"/>
-    <!-- 107.86mm to right (-Y), 17mm below hip top (-Z) -->
-    <origin xyz="0 -0.10786 -0.017" rpy="0 0 0"/>
-    <!-- Rotation about Y axis = leg swings forward/backward -->
+  <!-- Knee Joint Right
+       lower=0.0  → fully extended = LOCKED against hyperextension (stance phase)
+       upper=1.1345 (~65°) → backward flexion via positive Y rotation (swing phase)
+       axis "0 1 0": Rx(+) swings shin tip in −X (backward) = correct knee flexion -->
+  <!-- Knee Joint Right:
+       lower=0.0 → hyperextension blocked (acts as stance latch — no damping needed)
+       Damping MUST be near-zero so the shin freely swings backward during swing
+       phase (centripetal inertia lifts the foot). The constraint at lower=0 holds
+       the leg straight during stance without needing high damping. -->
+  <joint name="knee_joint_right" type="revolute">
+    <parent link="thigh_right"/>
+    <child link="shin_right"/>
+    <origin xyz="0 0 -0.500" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
-    <limit effort="0" lower="-0.5236" upper="0.5236" velocity="10.0"/>
-    <!-- effort=0 means NO motor, pure passive! -->
-    <dynamics damping="0.001" friction="0.001"/>
+    <limit effort="0" lower="0.0" upper="1.1345" velocity="10.0"/>
+    <!-- no damping: knee behaves as ideal hinge, inertia alone governs swing -->
+    <dynamics damping="0.0" friction="0.001"/>
   </joint>
-
-
-  <!-- ============================================================
-       RIGHT SHIN
-       Mass: 0.350 kg
-       COM:  32mm from knee (93.6% from ankle = near top)
-             This TOP-HEAVY shin distribution is the key insight
-             from Collins 2001 for stable passive gait!
-       Length: 500mm (knee joint to foot bottom)
-       ============================================================ -->
 
   <link name="shin_right">
     <visual>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <!-- CAD joint (−107.86, 501, 0) → offset (0, +0.10786, −0.501) -->
+      <origin xyz="0 0.10786 -0.501" rpy="1.5708 0 1.5708"/>
       <geometry>
-        <mesh filename="package://pady_robot/meshes/visual/shin_right.stl"
-              scale="0.001 0.001 0.001"/>
+        <mesh filename="package://pady_robot/meshes/visual/shin_right.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="grey"/>
     </visual>
     <collision>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <origin xyz="0 0.10786 -0.501" rpy="1.5708 0 1.5708"/>
       <geometry>
-        <mesh filename="package://pady_robot/meshes/visual/shin_right.stl"
-              scale="0.001 0.001 0.001"/>
+        <mesh filename="package://pady_robot/meshes/visual/shin_right.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
     <inertial>
       <mass value="0.350"/>
-      <!-- COM: 32mm from knee (top), 468mm from ankle (93.6% up) -->
       <origin xyz="0 0 -0.032" rpy="0 0 0"/>
-      <!-- Inertia about COM. Previous iyy=0.023925 was computed about the geometric
-           midpoint (off by m*(0.218)²=0.016633). Corrected to match ixx. -->
-      <inertia ixx="0.007338" ixy="0.0" ixz="0.0"
-               iyy="0.007338" iyz="0.0"
-               izz="0.000047"/>
+      <inertia ixx="0.007338" ixy="0.0" ixz="0.0" iyy="0.007338" iyz="0.0" izz="0.000047"/>
     </inertial>
   </link>
 
-  <!-- Knee Joint RIGHT
-       Location: 500mm below hip joint (bottom of thigh)
-       Type: Revolute - knee can only FLEX (not hyperextend)
-       Limits: 0deg (straight) to 65deg (flexed)
-       Note: In passive walker, knee locks during stance,
-             flexes during swing phase under gravity -->
-  <joint name="knee_joint_right" type="revolute">
-    <parent link="thigh_right"/>
-    <child link="shin_right"/>
-    <!-- Directly below hip joint, 500mm down -->
-    <origin xyz="0 0 -0.500" rpy="0 0 0"/>
-    <axis xyz="0 1 0"/>
-    <!-- lower=0 prevents hyperextension, upper=65deg allows flex -->
-    <limit effort="0" lower="0.0" upper="1.1345" velocity="10.0"/>
-    <dynamics damping="0.001" friction="0.001"/>
+  <!-- Foot Joint Right – fixed, canted outward 0.20 rad (≈11.5°).
+       Negative roll tilts the sole toward −Y (outer side). When standing on
+       the right foot, contact is on the outer edge; the CoM is to the left
+       of that edge, so the robot rocks rightward, lifting the left swing foot.
+       This is the Collins 2001 lateral-clearance mechanism. -->
+  <joint name="foot_joint_right" type="fixed">
+    <parent link="shin_right"/>
+    <child link="foot_right"/>
+    <origin xyz="0.020 0 -0.500" rpy="-0.05 0.0 0.0"/>
   </joint>
-
-
-  <!-- ============================================================
-       RIGHT FOOT
-       Mass: 0.175 kg
-       COM:  40mm forward of ankle (foot extends forward)
-       Role: Ground contact, curved heel for rolling
-       Note: No ankle joint - foot rigidly attached to shin
-             Rail guides will be added later for lateral stability
-       ============================================================ -->
 
   <link name="foot_right">
     <visual>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <!-- rpy="0 0 4.71239" = Rz(-90°): CAD-X→-URDF-Y, CAD-Y→URDF-X, CAD-Z→URDF-Z
+           xyz = -Rz(-90°) · P_joint/1000, P_joint=(-107.86, 1, 20)mm → (-0.001, -0.10786, -0.020) -->
+      <origin xyz="0.1175 -0.1085 -0.020" rpy="0 0 4.71239"/>
       <geometry>
-        <mesh filename="package://pady_robot/meshes/visual/right_foot.stl"
-              scale="0.001 0.001 0.001"/>
+        <mesh filename="package://pady_robot/meshes/visual/right_foot.stl" scale="0.001 0.001 0.001"/>
       </geometry>
-      <material name="dark_grey">
-        <color rgba="0.3 0.3 0.3 1.0"/>
-      </material>
+      <material name="dark_grey"><color rgba="0.3 0.3 0.3 1.0"/></material>
     </visual>
     <collision>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <!-- Three tangent cylinders give continuous sole coverage matching the STL.
+           Mesh bounds in foot_right frame (from STL analysis):
+             X (forward): -0.028 m (heel) to +0.168 m (toe)
+             Z (bottom) : -0.067 m (sole)
+           Cylinders at x=0.00, 0.07, 0.14 with radius=0.035 cover x=-0.035 to +0.175 m,
+           fully enclosing the mesh.  All share the same bottom: z = -0.032-0.035 = -0.067 m.
+           cylinder axis along Y (Rx=90°) → foot rolls forward/backward on the slope. -->
+      <origin xyz="0.00 0 -0.032" rpy="1.5708 0 0"/>
       <geometry>
-        <mesh filename="package://pady_robot/meshes/visual/right_foot.stl"
-              scale="0.001 0.001 0.001"/>
+        <cylinder radius="0.035" length="0.20"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0.07 0 -0.032" rpy="1.5708 0 0"/>
+      <geometry>
+        <cylinder radius="0.035" length="0.20"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0.14 0 -0.032" rpy="1.5708 0 0"/>
+      <geometry>
+        <cylinder radius="0.035" length="0.20"/>
       </geometry>
     </collision>
     <inertial>
       <mass value="0.175"/>
-      <!-- COM: 40mm forward (foot extends in front of shin) -->
       <origin xyz="0.040 0 -0.015" rpy="0 0 0"/>
-      <inertia ixx="0.000118" ixy="0.0" ixz="0.0"
-               iyy="0.000299" iyz="0.0"
-               izz="0.000391"/>
+      <inertia ixx="0.000118" ixy="0.0" ixz="0.0" iyy="0.000299" iyz="0.0" izz="0.000391"/>
     </inertial>
   </link>
 
-  <!-- Foot Joint RIGHT
-       Fixed joint - no ankle rotation
-       Foot rigidly attached at bottom of shin (500mm down)
-       Offset 20mm forward (foot extends forward of shin centerline) -->
-  <joint name="foot_joint_right" type="fixed">
-    <parent link="shin_right"/>
-    <child link="foot_right"/>
-    <!-- 500mm below knee, 20mm forward -->
-    <origin xyz="0.020 0 -0.500" rpy="0 0 0"/>
+  <!-- ═══════════════════════════════════════════════════════════════
+       LEFT LEG
+       ═══════════════════════════════════════════════════════════════ -->
+
+  <!-- Hip Joint Left – revolute, sagittal plane (Y-axis) -->
+  <joint name="hip_joint_left" type="revolute">
+    <parent link="base_link"/>
+    <child link="thigh_left"/>
+    <origin xyz="0 0.10786 -0.017" rpy="0 -0.1 0"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="100" lower="-1.57" upper="1.57" velocity="10.0"/>
+    <dynamics damping="0.001" friction="0.001"/>
   </joint>
-
-
-  <!-- ============================================================
-       LEFT THIGH (mirror of right thigh)
-       Mass: 0.437 kg (identical to right)
-       COM:  47.5mm from hip - same distribution
-       ============================================================ -->
 
   <link name="thigh_left">
     <visual>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <!-- CAD joint (+107.86, 1001, 0) → offset (0, −0.10786, −1.001) -->
+      <origin xyz="0 -0.10786 -1.001" rpy="1.5708 0 1.5708"/>
       <geometry>
-        <mesh filename="package://pady_robot/meshes/visual/thigh_left.stl"
-              scale="0.001 0.001 0.001"/>
+        <mesh filename="package://pady_robot/meshes/visual/thigh_left.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="grey"/>
     </visual>
     <collision>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <origin xyz="0 -0.10786 -1.001" rpy="1.5708 0 1.5708"/>
       <geometry>
-        <mesh filename="package://pady_robot/meshes/visual/thigh_left.stl"
-              scale="0.001 0.001 0.001"/>
+        <mesh filename="package://pady_robot/meshes/visual/thigh_left.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
     <inertial>
       <mass value="0.437"/>
       <origin xyz="0 0 -0.0475" rpy="0 0 0"/>
-      <inertia ixx="0.009162" ixy="0.0" ixz="0.0"
-               iyy="0.009162" iyz="0.0"
-               izz="0.000058"/>
+      <inertia ixx="0.009162" ixy="0.0" ixz="0.0" iyy="0.009162" iyz="0.0" izz="0.000058"/>
     </inertial>
   </link>
 
-  <!-- Hip Joint LEFT
-       Mirror of right: +Y instead of -Y (left side) -->
-  <joint name="hip_joint_left" type="revolute">
-    <parent link="base_link"/>
-    <child link="thigh_left"/>
-    <!-- 107.86mm to LEFT (+Y), 17mm below hip top (-Z) -->
-    <origin xyz="0 0.10786 -0.017" rpy="0 0 0"/>
-    <axis xyz="0 1 0"/>
-    <limit effort="0" lower="-0.5236" upper="0.5236" velocity="10.0"/>
-    <dynamics damping="0.001" friction="0.001"/>
-  </joint>
-
-
-  <!-- ============================================================
-       LEFT SHIN (mirror of right shin)
-       Mass: 0.350 kg
-       COM:  32mm from knee (93.6% from ankle)
-       ============================================================ -->
-
-  <link name="shin_left">
-    <visual>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <geometry>
-        <mesh filename="package://pady_robot/meshes/visual/shin_left.stl"
-              scale="0.001 0.001 0.001"/>
-      </geometry>
-      <material name="grey"/>
-    </visual>
-    <collision>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <geometry>
-        <mesh filename="package://pady_robot/meshes/visual/shin_left.stl"
-              scale="0.001 0.001 0.001"/>
-      </geometry>
-    </collision>
-    <inertial>
-      <mass value="0.350"/>
-      <origin xyz="0 0 -0.032" rpy="0 0 0"/>
-      <inertia ixx="0.007338" ixy="0.0" ixz="0.0"
-               iyy="0.007338" iyz="0.0"
-               izz="0.000047"/>
-    </inertial>
-  </link>
-
-  <!-- Knee Joint LEFT -->
+  <!-- Knee Joint Left — no damping so the knee is fully passive during
+       swing and stance (dynamics rely solely on mass distribution and contact) -->
   <joint name="knee_joint_left" type="revolute">
     <parent link="thigh_left"/>
     <child link="shin_left"/>
     <origin xyz="0 0 -0.500" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
     <limit effort="0" lower="0.0" upper="1.1345" velocity="10.0"/>
-    <dynamics damping="0.001" friction="0.001"/>
+    <dynamics damping="0.0" friction="0.001"/>
   </joint>
 
+  <link name="shin_left">
+    <visual>
+      <!-- CAD joint (+107.86, 501, 0) → offset (0, −0.10786, −0.501) -->
+      <origin xyz="0 -0.10786 -0.501" rpy="1.5708 0 1.5708"/>
+      <geometry>
+        <mesh filename="package://pady_robot/meshes/visual/shin_left.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="grey"/>
+    </visual>
+    <collision>
+      <origin xyz="0 -0.10786 -0.501" rpy="1.5708 0 1.5708"/>
+      <geometry>
+        <mesh filename="package://pady_robot/meshes/visual/shin_left.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.350"/>
+      <origin xyz="0 0 -0.032" rpy="0 0 0"/>
+      <inertia ixx="0.007338" ixy="0.0" ixz="0.0" iyy="0.007338" iyz="0.0" izz="0.000047"/>
+    </inertial>
+  </link>
 
-  <!-- ============================================================
-       LEFT FOOT (mirror of right foot)
-       Mass: 0.175 kg
-       ============================================================ -->
+  <!-- Foot Joint Left – mirror cant of right: +0.20 rad toward +Y (outer side) -->
+  <joint name="foot_joint_left" type="fixed">
+    <parent link="shin_left"/>
+    <child link="foot_left"/>
+    <origin xyz="0.020 0 -0.500" rpy="0.05 0.0 0.0"/>
+  </joint>
 
   <link name="foot_left">
     <visual>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <!-- rpy="0 0 4.71239" = Rz(-90°): xyz = -Rz(-90°) · P_joint/1000
+           P_joint=(+107.86, 1, 20)mm → (-0.001, +0.10786, -0.020) -->
+      <origin xyz="0.1175 0.1097 -0.020" rpy="0 0 4.71239"/>
       <geometry>
-        <mesh filename="package://pady_robot/meshes/visual/left_foot.stl"
-              scale="0.001 0.001 0.001"/>
+        <mesh filename="package://pady_robot/meshes/visual/left_foot.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="dark_grey"/>
     </visual>
     <collision>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <!-- Mirror of right foot: same three-cylinder layout. -->
+      <origin xyz="0.00 0 -0.032" rpy="1.5708 0 0"/>
       <geometry>
-        <mesh filename="package://pady_robot/meshes/visual/left_foot.stl"
-              scale="0.001 0.001 0.001"/>
+        <cylinder radius="0.035" length="0.20"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0.07 0 -0.032" rpy="1.5708 0 0"/>
+      <geometry>
+        <cylinder radius="0.035" length="0.20"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0.14 0 -0.032" rpy="1.5708 0 0"/>
+      <geometry>
+        <cylinder radius="0.035" length="0.20"/>
       </geometry>
     </collision>
     <inertial>
       <mass value="0.175"/>
       <origin xyz="0.040 0 -0.015" rpy="0 0 0"/>
-      <inertia ixx="0.000118" ixy="0.0" ixz="0.0"
-               iyy="0.000299" iyz="0.0"
-               izz="0.000391"/>
+      <inertia ixx="0.000118" ixy="0.0" ixz="0.0" iyy="0.000299" iyz="0.0" izz="0.000391"/>
     </inertial>
   </link>
 
-  <!-- Foot Joint LEFT -->
-  <joint name="foot_joint_left" type="fixed">
-    <parent link="shin_left"/>
-    <child link="foot_left"/>
-    <origin xyz="0.020 0 -0.500" rpy="0 0 0"/>
-  </joint>
+  <!-- ═══════════════════════════════════════════════════════════════
+       GAZEBO PROPERTIES
+       ═══════════════════════════════════════════════════════════════ -->
 
+  <!-- ApplyJointForce for gait kick — one <gazebo> element per plugin so both
+       survive URDF→SDF conversion (parsers may drop duplicates in one block).
+       Topics: /model/pady/joint/hip_joint_right/0/cmd_force  (gz.msgs.Double, Nm)
+               /model/pady/joint/hip_joint_left/0/cmd_force
+       Maintains last commanded force each step; send 0.0 to go passive. -->
+  <!-- ApplyJointForce: topic must include the /0/ index used by the launch-file kick.
+       Default topic omits it; explicitly setting it here ensures the two match. -->
+  <gazebo>
+    <plugin filename="gz-sim-apply-joint-force-system"
+            name="gz::sim::systems::ApplyJointForce">
+      <joint_name>hip_joint_right</joint_name>
+      <topic>/model/pady/joint/hip_joint_right/0/cmd_force</topic>
+    </plugin>
+  </gazebo>
+  <gazebo>
+    <plugin filename="gz-sim-apply-joint-force-system"
+            name="gz::sim::systems::ApplyJointForce">
+      <joint_name>hip_joint_left</joint_name>
+      <topic>/model/pady/joint/hip_joint_left/0/cmd_force</topic>
+    </plugin>
+  </gazebo>
 
-  <!-- ============================================================
-       GAZEBO SIMULATION PROPERTIES
-       These tags are read by Gazebo only (ignored by RViz)
-       ============================================================ -->
+  <!-- optional body force plugin: world-level attachment so the system
+       has access to the world context.  We attempt both ApplyLinkForce and
+       ApplyLinkWrench; the one that exists in the current gz-sim build will
+       consume the topic. -->
+  <gazebo reference="world">
+    <plugin filename="gz-sim-apply-link-force-system"
+            name="gz::sim::systems::ApplyLinkForce">
+      <link_name>base_link</link_name>
+      <topic>/model/pady/link/base_link/0/cmd_force</topic>
+    </plugin>
+  </gazebo>
+  <gazebo reference="world">
+    <plugin filename="gz-sim-apply-link-wrench-system"
+            name="gz::sim::systems::ApplyLinkWrench">
+      <link_name>base_link</link_name>
+      <topic>/model/pady/link/base_link/0/cmd_force</topic>
+    </plugin>
+  </gazebo>
 
-  <!-- Foot contact physics - HIGH friction so feet don't slip -->
+  <!-- High foot friction so feet grip the slope surface -->
   <gazebo reference="foot_right">
-    <!-- Coefficient of friction (0.8 = rubber on concrete) -->
-    <mu1>0.8</mu1>
-    <mu2>0.8</mu2>
-    <!-- Contact stiffness (high = hard floor, not squishy) -->
-    <kp>1000000.0</kp>
-    <!-- Contact damping (absorbs impact energy) -->
-    <kd>100.0</kd>
-    <material>Gazebo/DarkGrey</material>
+    <!-- very high friction to prevent any yaw-inducing lateral slip -->
+    <mu1>4.0</mu1>
+    <mu2>4.0</mu2>
+    <!-- stiff contact with high damping to lock feet to slope -->
+    <kp>10000000.0</kp>
+    <kd>1000.0</kd>
   </gazebo>
 
   <gazebo reference="foot_left">
-    <mu1>0.8</mu1>
-    <mu2>0.8</mu2>
-    <kp>1000000.0</kp>
-    <kd>100.0</kd>
-    <material>Gazebo/DarkGrey</material>
+    <mu1>4.0</mu1>
+    <mu2>4.0</mu2>
+    <kp>10000000.0</kp>
+    <kd>1000.0</kd>
   </gazebo>
 
-  <!-- Publish joint states from Gazebo so ros_gz_bridge can bridge them to ROS -->
+  <!-- Joint state publisher so Gazebo publishes joint angles to ROS -->
   <gazebo>
     <plugin filename="gz-sim-joint-state-publisher-system"
             name="gz::sim::systems::JointStatePublisher"/>
-  </gazebo>
-
-  <!-- Leg materials (visual only in Gazebo) -->
-  <gazebo reference="base_link">
-    <material>Gazebo/Blue</material>
-  </gazebo>
-
-  <gazebo reference="thigh_right">
-    <material>Gazebo/Grey</material>
-  </gazebo>
-
-  <gazebo reference="shin_right">
-    <material>Gazebo/Grey</material>
-  </gazebo>
-
-  <gazebo reference="thigh_left">
-    <material>Gazebo/Grey</material>
-  </gazebo>
-
-  <gazebo reference="shin_left">
-    <material>Gazebo/Grey</material>
   </gazebo>
 
 </robot>

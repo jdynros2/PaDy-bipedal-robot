@@ -13,7 +13,14 @@ install(DIRECTORY
   meshes
   worlds
   launch
+  config
   DESTINATION share/${PROJECT_NAME}
+)
+
+# install helper Python scripts so they can be run with `ros2 run`
+install(PROGRAMS
+  scripts/continuous_hip_push.py
+  DESTINATION lib/${PROJECT_NAME}
 )
 
 ament_package()
