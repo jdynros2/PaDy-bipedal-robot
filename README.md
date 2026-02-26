@@ -49,7 +49,7 @@ base_link [free-floating root - Gazebo treats URDF root as 6 DOF]
 ## Quick Start (University PC)
 
 ```bash
-# Clone repository
+# Clone repo and package
 cd ~/ros2_ws/src
 git clone https://github.com/jdynros2/PaDy-bipedal-walker.git pady_robot
 
@@ -58,10 +58,7 @@ cd ~/ros2_ws
 colcon build --packages-select pady_robot
 source install/setup.bash
 
-# Validate URDF
-check_urdf src/pady_robot/urdf/pady.urdf
-
-# Launch simulation (default parameters)
+# Launch simulation 
 ros2 launch pady_robot spawn_pady.launch.py
 
 # Launch with custom gait parameters
