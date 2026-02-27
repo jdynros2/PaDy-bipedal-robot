@@ -1,0 +1,50 @@
+Panels:
+  - Class: rviz/Displays
+    Name: Displays
+
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Alpha: 1
+      Class: rviz_default_plugins/RobotModel
+      Name: RobotModel
+      Robot Description: robot_description
+      Enabled: true
+    - Class: rviz_default_plugins/TF
+      Name: TF
+      Enabled: true
+    - Class: rviz_default_plugins/JointState
+      Name: Joint States
+      Enabled: true
+      Show Joint Names: true
+      Show Inactive Joints: false
+      Auto Size: true
+    - Class: rviz_default_plugins/Plot
+      Name: Joint Angles
+      Enabled: true
+      Variables:
+        # these are examples – adjust to match your joint names
+        - topic: '/joint_states'
+          field: 'position[0]'
+          label: 'hip_joint_right'
+        - topic: '/joint_states'
+          field: 'position[1]'
+          label: 'hip_joint_left'
+        - topic: '/joint_states'
+          field: 'position[2]'
+          label: 'knee_joint_right'
+        - topic: '/joint_states'
+          field: 'position[3]'
+          label: 'knee_joint_left'
+        - topic: '/tf'
+          field: 'transform[0].translation.z'
+          label: 'base_link_height'
+      Y Axis Type: linear
+      Autoscale: true
+      History Length: 1000
+    - Class: rviz_default_plugins/Plot
+      Name: Angle Variance
+      Enabled: false
+      Variables: []
+  Global Options:
+    Fixed Frame: base_link

@@ -14,12 +14,14 @@ install(DIRECTORY
   worlds
   launch
   config
+  rviz
   DESTINATION share/${PROJECT_NAME}
 )
 
 # install helper Python scripts so they can be run with `ros2 run`
 install(PROGRAMS
   scripts/continuous_hip_push.py
+  scripts/gait_analyser.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

@@ -60,6 +60,13 @@ def generate_launch_description():
         description='Initial forward pitch (rad)')
     spawn_pitch = LaunchConfiguration('spawn_pitch')
 
+    # RViz configuration (launch together with Gazebo)
+    rviz_config_arg = DeclareLaunchArgument(
+        'rvizconfig',
+        default_value=os.path.join(pkg_dir, 'rviz', 'pady.rviz'),
+        description='Path to RViz configuration file')
+    rviz_config = LaunchConfiguration('rvizconfig')
+
     gazebo = ExecuteProcess(
         cmd=['gz', 'sim', world_path],
         output='screen'
@@ -109,6 +116,16 @@ def generate_launch_description():
             {'use_sim_time': use_sim_time},
         ],
         output='screen'
+    )
+
+    # RViz display window
+    rviz_node = Node(
+        package='rviz2',
+        executable='rviz2',
+        name='rviz2',
+        output='screen',
+        arguments=['-d', rviz_config],
+        parameters=[{'use_sim_time': use_sim_time}],
     )
 
     unpause = TimerAction(
@@ -206,9 +223,11 @@ def generate_launch_description():
         body_force_arg,
         spawn_x_arg,
         spawn_pitch_arg,
+        rviz_config_arg,
         gazebo,
         robot_state_pub,
         joint_state_bridge,
+        rviz_node,
         spawn_robot,       # T=5.0s:  spawn (paused)
         kick_left,         # T=7.5s:  left hip kick (magnitude from kick_torque)
         unpause,           # T=8.0s:  physics starts — left kick fires
