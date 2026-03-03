@@ -1,6 +1,7 @@
 import os
 from launch import LaunchDescription
 from launch.actions import ExecuteProcess, DeclareLaunchArgument, TimerAction
+from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration, TextSubstitution
 from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
@@ -60,6 +61,16 @@ def generate_launch_description():
         description='Initial forward pitch (rad)')
     spawn_pitch = LaunchConfiguration('spawn_pitch')
 
+    arm_start_pitch_arg = DeclareLaunchArgument(
+        'arm_start_pitch', default_value='-0.90',
+        description='Initial arm joint angle (rad), negative pitches arms backward')
+    arm_start_pitch = LaunchConfiguration('arm_start_pitch')
+
+    auto_unpause_arg = DeclareLaunchArgument(
+        'auto_unpause', default_value='false',
+        description='Unpause physics automatically at startup')
+    auto_unpause = LaunchConfiguration('auto_unpause')
+
     # RViz configuration (launch together with Gazebo)
     rviz_config_arg = DeclareLaunchArgument(
         'rvizconfig',
@@ -92,6 +103,8 @@ def generate_launch_description():
                     '-J', 'hip_joint_left',   '-0.50',  # swing: wide back for pendular energy
                     '-J', 'knee_joint_right',  '0.02',  # stance knee: at lower limit, locks on contact
                     '-J', 'knee_joint_left',   '1.05',  # swing knee: 46 mm ground clearance
+                    '-J', 'arm_joint_right', arm_start_pitch,
+                    '-J', 'arm_joint_left',  arm_start_pitch,
                 ],
                 output='screen'
             )
@@ -129,6 +142,7 @@ def generate_launch_description():
     )
 
     unpause = TimerAction(
+        condition=IfCondition(auto_unpause),
         period=8.0,
         actions=[
             ExecuteProcess(
@@ -223,6 +237,8 @@ def generate_launch_description():
         body_force_arg,
         spawn_x_arg,
         spawn_pitch_arg,
+        arm_start_pitch_arg,
+        auto_unpause_arg,
         rviz_config_arg,
         gazebo,
         robot_state_pub,
