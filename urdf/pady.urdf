@@ -31,14 +31,14 @@
   <link name="base_link">
     <visual>
       <!-- CAD origin (0,1018,0) mm → offset (0, 0, -1.018) m -->
-      <origin xyz="1.05 0.037 0" rpy="0 0 1.5708"/>
+      <origin xyz="1.042 0.037 -0.005" rpy="0 0 1.5708"/>
       <geometry>
         <mesh filename="package://pady_robot/meshes/visual/base_link.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="blue"><color rgba="0.2 0.4 0.8 1.0"/></material>
     </visual>
     <collision>
-      <origin xyz="1.05 0.037 0" rpy="0 0 1.5708"/>
+      <origin xyz="1.042 0.037 -0.005" rpy="0 0 1.5708"/>
       <geometry>
         <mesh filename="package://pady_robot/meshes/visual/base_link.stl" scale="0.001 0.001 0.001"/>
       </geometry>
@@ -60,7 +60,7 @@
     <child link="thigh_right"/>
     <origin xyz="0 -0.10786 -0.017" rpy="0 0.1 0"/>
     <axis xyz="0 1 0"/>
-    <limit effort="100" lower="-1.57" upper="1.57" velocity="10.0"/>
+    <limit effort="100" lower="-0.55" upper="0.55" velocity="10.0"/>
     <dynamics damping="0.001" friction="0.001"/>
   </joint>
 
@@ -135,7 +135,7 @@
   <joint name="foot_joint_right" type="fixed">
     <parent link="shin_right"/>
     <child link="foot_right"/>
-    <origin xyz="0.020 0 -0.500" rpy="-0.05 0.0 0.0"/>
+    <origin xyz="0.020 0 -0.500" rpy="0.0 0.0 0.0"/>
   </joint>
 
   <link name="foot_right">
@@ -149,28 +149,9 @@
       <material name="dark_grey"><color rgba="0.3 0.3 0.3 1.0"/></material>
     </visual>
     <collision>
-      <!-- Three tangent cylinders give continuous sole coverage matching the STL.
-           Mesh bounds in foot_right frame (from STL analysis):
-             X (forward): -0.028 m (heel) to +0.168 m (toe)
-             Z (bottom) : -0.067 m (sole)
-           Cylinders at x=0.00, 0.07, 0.14 with radius=0.035 cover x=-0.035 to +0.175 m,
-           fully enclosing the mesh.  All share the same bottom: z = -0.032-0.035 = -0.067 m.
-           cylinder axis along Y (Rx=90°) → foot rolls forward/backward on the slope. -->
-      <origin xyz="0.00 0 -0.032" rpy="1.5708 0 0"/>
+      <origin xyz="0.1175 -0.1085 -0.020" rpy="0 0 4.71239"/>
       <geometry>
-        <cylinder radius="0.035" length="0.20"/>
-      </geometry>
-    </collision>
-    <collision>
-      <origin xyz="0.07 0 -0.032" rpy="1.5708 0 0"/>
-      <geometry>
-        <cylinder radius="0.035" length="0.20"/>
-      </geometry>
-    </collision>
-    <collision>
-      <origin xyz="0.14 0 -0.032" rpy="1.5708 0 0"/>
-      <geometry>
-        <cylinder radius="0.035" length="0.20"/>
+        <mesh filename="package://pady_robot/meshes/visual/right_foot.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
     <inertial>
@@ -190,7 +171,7 @@
     <child link="thigh_left"/>
     <origin xyz="0 0.10786 -0.017" rpy="0 -0.1 0"/>
     <axis xyz="0 1 0"/>
-    <limit effort="100" lower="-1.57" upper="1.57" velocity="10.0"/>
+    <limit effort="100" lower="-0.55" upper="0.55" velocity="10.0"/>
     <dynamics damping="0.001" friction="0.001"/>
   </joint>
 
@@ -253,7 +234,7 @@
   <joint name="foot_joint_left" type="fixed">
     <parent link="shin_left"/>
     <child link="foot_left"/>
-    <origin xyz="0.020 0 -0.500" rpy="0.05 0.0 0.0"/>
+    <origin xyz="0.020 0 -0.500" rpy="0.0 0.0 0.0"/>
   </joint>
 
   <link name="foot_left">
@@ -267,22 +248,9 @@
       <material name="dark_grey"/>
     </visual>
     <collision>
-      <!-- Mirror of right foot: same three-cylinder layout. -->
-      <origin xyz="0.00 0 -0.032" rpy="1.5708 0 0"/>
+      <origin xyz="0.1175 0.1097 -0.020" rpy="0 0 4.71239"/>
       <geometry>
-        <cylinder radius="0.035" length="0.20"/>
-      </geometry>
-    </collision>
-    <collision>
-      <origin xyz="0.07 0 -0.032" rpy="1.5708 0 0"/>
-      <geometry>
-        <cylinder radius="0.035" length="0.20"/>
-      </geometry>
-    </collision>
-    <collision>
-      <origin xyz="0.14 0 -0.032" rpy="1.5708 0 0"/>
-      <geometry>
-        <cylinder radius="0.035" length="0.20"/>
+        <mesh filename="package://pady_robot/meshes/visual/left_foot.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
     <inertial>
@@ -308,9 +276,9 @@
   <joint name="arm_joint_right" type="revolute">
     <parent link="base_link"/>
     <child link="arm_right"/>  
-    <origin xyz="0.0 -0.26 -0.017" rpy="0 0 0"/>
+    <origin xyz="0.015 -0.26 0.005" rpy="0 -1.5708 0"/>
     <axis xyz="0 1 0"/>
-    <limit effort="0" lower="-1.0" upper="1.0" velocity="10.0"/>
+    <limit effort="0" lower="-3.14159" upper="3.14159" velocity="10.0"/>
     <dynamics damping="0.001" friction="0.001"/>
   </joint>
 
@@ -318,24 +286,24 @@
     <visual>
       <!-- axle hole at CAD (-295.94, 1035, -102.68) mm
            xyz = -R·P/1000 = (0.103, 0.296, -1.035) — puts axle at joint origin -->
-      <origin xyz="-0.103 0.33 -1.035" rpy="1.5708 0 1.5708"/>
+      <origin xyz="-0.005 0.296 -1.035" rpy="1.5708 0 1.5708"/>
       <geometry>
         <mesh filename="package://pady_robot/meshes/visual/arm_right.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="grey"/>
     </visual>
     <collision>
-      <origin xyz="-0.103 0.33 -1.035" rpy="1.5708 0 1.5708"/>
+      <origin xyz="-0.005 0.296 -1.035" rpy="1.5708 0 1.5708"/>
       <geometry>
         <mesh filename="package://pady_robot/meshes/visual/arm_right.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
     <inertial>
-      <mass value="0.150"/>
-      <origin xyz="0 -0.048 0" rpy="0 0 0"/>
-      <inertia ixx="2.24e-5" ixy="0.0" ixz="0.0"
-               iyy="9.14e-4" iyz="0.0"
-               izz="9.31e-4"/>
+      <mass value="0.250"/>
+      <origin xyz="-0.13 0 0" rpy="0 0 0"/>
+      <inertia ixx="3.0e-5" ixy="0.0" ixz="0.0"
+               iyy="3.5e-3" iyz="0.0"
+               izz="3.5e-3"/>
     </inertial>
   </link>
 
@@ -343,9 +311,9 @@
   <joint name="arm_joint_left" type="revolute">
     <parent link="base_link"/>
     <child link="arm_left"/>
-    <origin xyz="0.100 0.213 -0.017" rpy="0 0 0"/>
+    <origin xyz="0.015 0.257 0.008" rpy="0 -1.5708 0"/>
     <axis xyz="0 1 0"/>
-    <limit effort="0" lower="-1.0" upper="1.0" velocity="10.0"/>
+    <limit effort="0" lower="-3.14159" upper="3.14159" velocity="10.0"/>
     <dynamics damping="0.001" friction="0.001"/>
   </joint>
 
@@ -353,24 +321,24 @@
     <visual>
       <!-- axle hole at CAD (216.43, 1035, -102.68) mm
            xyz = -R·P/1000 = (0.103, -0.216, -1.035) — puts axle at joint origin -->
-      <origin xyz="-0.103 -0.2 -1.035" rpy="1.5708 0 1.5708"/>
+      <origin xyz="-0.005 -0.216 -1.035" rpy="1.5708 0 1.5708"/>
       <geometry>
         <mesh filename="package://pady_robot/meshes/visual/arm_left.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="grey"/>
     </visual>
     <collision>
-      <origin xyz="-0.103 -0.2 -1.035" rpy="1.5708 0 1.5708"/>
+      <origin xyz="-0.005 -0.216 -1.035" rpy="1.5708 0 1.5708"/>
       <geometry>
         <mesh filename="package://pady_robot/meshes/visual/arm_left.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
     <inertial>
-      <mass value="0.150"/>
-      <origin xyz="0 0.048 0" rpy="0 0 0"/>
-      <inertia ixx="2.24e-5" ixy="0.0" ixz="0.0"
-               iyy="9.14e-4" iyz="0.0"
-               izz="9.31e-4"/>
+      <mass value="0.250"/>
+      <origin xyz="-0.13 0 0" rpy="0 0 0"/>
+      <inertia ixx="3.0e-5" ixy="0.0" ixz="0.0"
+               iyy="3.5e-3" iyz="0.0"
+               izz="3.5e-3"/>
     </inertial>
   </link>
   <!-- ═══════════════════════════════════════════════════════════════
@@ -415,6 +383,22 @@
             name="gz::sim::systems::ApplyLinkWrench">
       <link_name>base_link</link_name>
       <topic>/model/pady/link/base_link/0/cmd_force</topic>
+    </plugin>
+  </gazebo>
+
+  <!-- ApplyJointForce for arm counterswing -->
+  <gazebo>
+    <plugin filename="gz-sim-apply-joint-force-system"
+            name="gz::sim::systems::ApplyJointForce">
+      <joint_name>arm_joint_right</joint_name>
+      <topic>/model/pady/joint/arm_joint_right/0/cmd_force</topic>
+    </plugin>
+  </gazebo>
+  <gazebo>
+    <plugin filename="gz-sim-apply-joint-force-system"
+            name="gz::sim::systems::ApplyJointForce">
+      <joint_name>arm_joint_left</joint_name>
+      <topic>/model/pady/joint/arm_joint_left/0/cmd_force</topic>
     </plugin>
   </gazebo>
 

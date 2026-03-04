@@ -56,7 +56,7 @@ def generate_launch_description():
         description='Initial x-coordinate')
     spawn_x = LaunchConfiguration('spawn_x')
     spawn_pitch_arg = DeclareLaunchArgument(
-        'spawn_pitch', default_value='0.28',
+        'spawn_pitch', default_value='0.29',
         description='Initial forward pitch (rad)')
     spawn_pitch = LaunchConfiguration('spawn_pitch')
 
@@ -118,16 +118,6 @@ def generate_launch_description():
         output='screen'
     )
 
-    # RViz display window
-    rviz_node = Node(
-        package='rviz2',
-        executable='rviz2',
-        name='rviz2',
-        output='screen',
-        arguments=['-d', rviz_config],
-        parameters=[{'use_sim_time': use_sim_time}],
-    )
-
     unpause = TimerAction(
         period=8.0,
         actions=[
@@ -151,20 +141,39 @@ def generate_launch_description():
         kick_torque,
     ]
 
+    # Arm kick data (same magnitude as hip kick for counterswing)
+    arm_kick_data = [
+        TextSubstitution(text='data: '),
+        kick_torque,
+    ]
+
     kick_left = TimerAction(
         period=7.5,
-        actions=[ExecuteProcess(
-            cmd=['gz', 'topic', '-t', '/model/pady/joint/hip_joint_left/0/cmd_force',
-                 '-m', 'gz.msgs.Double', '-p', kick_data],
-            output='screen')],
+        actions=[
+            ExecuteProcess(
+                cmd=['gz', 'topic', '-t', '/model/pady/joint/hip_joint_left/0/cmd_force',
+                     '-m', 'gz.msgs.Double', '-p', kick_data],
+                output='screen'),
+            # Contralateral: left hip kick → right arm kick (same direction)
+            ExecuteProcess(
+                cmd=['gz', 'topic', '-t', '/model/pady/joint/arm_joint_right/0/cmd_force',
+                     '-m', 'gz.msgs.Double', '-p', arm_kick_data],
+                output='screen'),
+        ],
     )
 
     kick_left_stop = TimerAction(
         period=8.15,
-        actions=[ExecuteProcess(
-            cmd=['gz', 'topic', '-t', '/model/pady/joint/hip_joint_left/0/cmd_force',
-                 '-m', 'gz.msgs.Double', '-p', 'data: 0.0'],
-            output='screen')],
+        actions=[
+            ExecuteProcess(
+                cmd=['gz', 'topic', '-t', '/model/pady/joint/hip_joint_left/0/cmd_force',
+                     '-m', 'gz.msgs.Double', '-p', 'data: 0.0'],
+                output='screen'),
+            ExecuteProcess(
+                cmd=['gz', 'topic', '-t', '/model/pady/joint/arm_joint_right/0/cmd_force',
+                     '-m', 'gz.msgs.Double', '-p', 'data: 0.0'],
+                output='screen'),
+        ],
     )
 
     kick_right = TimerAction(
@@ -175,29 +184,49 @@ def generate_launch_description():
                      '-t', '/model/pady/joint/hip_joint_right/0/cmd_force',
                      '-m', 'gz.msgs.Double',
                      '-p', kick_data],
-                output='screen'
-            ),
+                output='screen'),
+            # Contralateral: right hip kick → left arm kick (same direction)
+            ExecuteProcess(
+                cmd=['gz', 'topic', '-t', '/model/pady/joint/arm_joint_left/0/cmd_force',
+                     '-m', 'gz.msgs.Double', '-p', arm_kick_data],
+                output='screen'),
         ]
     )
 
     kick_right_stop = TimerAction(
         period=9.15,
-        actions=[ExecuteProcess(
-            cmd=['gz', 'topic', '-t', '/model/pady/joint/hip_joint_right/0/cmd_force',
-                 '-m', 'gz.msgs.Double', '-p', 'data: 0.0'],
-            output='screen')],
+        actions=[
+            ExecuteProcess(
+                cmd=['gz', 'topic', '-t', '/model/pady/joint/hip_joint_right/0/cmd_force',
+                     '-m', 'gz.msgs.Double', '-p', 'data: 0.0'],
+                output='screen'),
+            ExecuteProcess(
+                cmd=['gz', 'topic', '-t', '/model/pady/joint/arm_joint_left/0/cmd_force',
+                     '-m', 'gz.msgs.Double', '-p', 'data: 0.0'],
+                output='screen'),
+        ],
     )
 
     release = TimerAction(
         period=10.5,
-        actions=[ExecuteProcess(
-            cmd=['gz', 'topic', '-t', '/model/pady/joint/hip_joint_right/0/cmd_force',
-                 '-m', 'gz.msgs.Double', '-p', 'data: 0.0'],
-            output='screen'),
+        actions=[
             ExecuteProcess(
-            cmd=['gz', 'topic', '-t', '/model/pady/joint/hip_joint_left/0/cmd_force',
-                 '-m', 'gz.msgs.Double', '-p', 'data: 0.0'],
-            output='screen')],
+                cmd=['gz', 'topic', '-t', '/model/pady/joint/hip_joint_right/0/cmd_force',
+                     '-m', 'gz.msgs.Double', '-p', 'data: 0.0'],
+                output='screen'),
+            ExecuteProcess(
+                cmd=['gz', 'topic', '-t', '/model/pady/joint/hip_joint_left/0/cmd_force',
+                     '-m', 'gz.msgs.Double', '-p', 'data: 0.0'],
+                output='screen'),
+            ExecuteProcess(
+                cmd=['gz', 'topic', '-t', '/model/pady/joint/arm_joint_right/0/cmd_force',
+                     '-m', 'gz.msgs.Double', '-p', 'data: 0.0'],
+                output='screen'),
+            ExecuteProcess(
+                cmd=['gz', 'topic', '-t', '/model/pady/joint/arm_joint_left/0/cmd_force',
+                     '-m', 'gz.msgs.Double', '-p', 'data: 0.0'],
+                output='screen'),
+        ],
     )
 
     hip_bias_node = Node(
@@ -227,7 +256,6 @@ def generate_launch_description():
         gazebo,
         robot_state_pub,
         joint_state_bridge,
-        rviz_node,
         spawn_robot,       # T=5.0s:  spawn (paused)
         kick_left,         # T=7.5s:  left hip kick (magnitude from kick_torque)
         unpause,           # T=8.0s:  physics starts — left kick fires
