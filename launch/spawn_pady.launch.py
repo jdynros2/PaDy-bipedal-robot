@@ -9,7 +9,7 @@ from ament_index_python.packages import get_package_share_directory
 def generate_launch_description():
     with open(os.path.join(get_package_share_directory('pady_robot'), 'urdf', 'pady.urdf'), 'r') as f:
         robot_desc = f.read()
-    
+
     pkg_dir = get_package_share_directory('pady_robot')
     urdf_path = os.path.join(pkg_dir, 'urdf', 'pady.urdf')
     world_path = os.path.join(pkg_dir, 'worlds', 'slope_3deg.sdf')
@@ -56,7 +56,7 @@ def generate_launch_description():
         description='Initial x-coordinate')
     spawn_x = LaunchConfiguration('spawn_x')
     spawn_pitch_arg = DeclareLaunchArgument(
-        'spawn_pitch', default_value='0.29',
+        'spawn_pitch', default_value='0.275',
         description='Initial forward pitch (rad)')
     spawn_pitch = LaunchConfiguration('spawn_pitch')
 
@@ -73,6 +73,7 @@ def generate_launch_description():
     )
 
     # Robot spawn with initial pose
+    # Arms set contralateral to legs: right arm back (left leg forward), left arm forward (right leg forward)
     spawn_robot = TimerAction(
         period=5.0,
         actions=[
@@ -85,13 +86,15 @@ def generate_launch_description():
                     '-x',      spawn_x,
                     '-y',      '0',
                     '-z',      '1.42',
-                    '-R',      '-0.2',     
+                    '-R',      '-0.2',
                     '-P',      spawn_pitch,  # forward lean to initiate fall onto slope
                     '-Y',      '0',
                     '-J', 'hip_joint_right',  '0.55',   # stance: foot 0.56m ahead of hip
                     '-J', 'hip_joint_left',   '-0.50',  # swing: wide back for pendular energy
                     '-J', 'knee_joint_right',  '0.02',  # stance knee: at lower limit, locks on contact
                     '-J', 'knee_joint_left',   '1.05',  # swing knee: 46 mm ground clearance
+                    '-J', 'arm_joint_right',  '-0.40',  # right arm back (contralateral to right leg forward)
+                    '-J', 'arm_joint_left',    '0.40',  # left arm forward (contralateral to left leg back)
                 ],
                 output='screen'
             )
@@ -135,49 +138,34 @@ def generate_launch_description():
         ]
     )
 
-    # Collins-style gait kicks
+    # Collins-style gait kicks (hips only — arms swing passively via gravity)
     kick_data = [
         TextSubstitution(text='data: '),
         kick_torque,
     ]
 
-    # Arm kick data (same magnitude as hip kick for counterswing)
-    arm_kick_data = [
-        TextSubstitution(text='data: '),
-        kick_torque,
-    ]
-
     kick_left = TimerAction(
-        period=7.5,
+        period=8.3,
         actions=[
             ExecuteProcess(
                 cmd=['gz', 'topic', '-t', '/model/pady/joint/hip_joint_left/0/cmd_force',
                      '-m', 'gz.msgs.Double', '-p', kick_data],
                 output='screen'),
-            # Contralateral: left hip kick → right arm kick (same direction)
-            ExecuteProcess(
-                cmd=['gz', 'topic', '-t', '/model/pady/joint/arm_joint_right/0/cmd_force',
-                     '-m', 'gz.msgs.Double', '-p', arm_kick_data],
-                output='screen'),
         ],
     )
 
     kick_left_stop = TimerAction(
-        period=8.15,
+        period=8.6,
         actions=[
             ExecuteProcess(
                 cmd=['gz', 'topic', '-t', '/model/pady/joint/hip_joint_left/0/cmd_force',
-                     '-m', 'gz.msgs.Double', '-p', 'data: 0.0'],
-                output='screen'),
-            ExecuteProcess(
-                cmd=['gz', 'topic', '-t', '/model/pady/joint/arm_joint_right/0/cmd_force',
                      '-m', 'gz.msgs.Double', '-p', 'data: 0.0'],
                 output='screen'),
         ],
     )
 
     kick_right = TimerAction(
-        period=9.0,
+        period=9.8,
         actions=[
             ExecuteProcess(
                 cmd=['gz', 'topic',
@@ -185,30 +173,21 @@ def generate_launch_description():
                      '-m', 'gz.msgs.Double',
                      '-p', kick_data],
                 output='screen'),
-            # Contralateral: right hip kick → left arm kick (same direction)
-            ExecuteProcess(
-                cmd=['gz', 'topic', '-t', '/model/pady/joint/arm_joint_left/0/cmd_force',
-                     '-m', 'gz.msgs.Double', '-p', arm_kick_data],
-                output='screen'),
         ]
     )
 
     kick_right_stop = TimerAction(
-        period=9.15,
+        period=10.1,
         actions=[
             ExecuteProcess(
                 cmd=['gz', 'topic', '-t', '/model/pady/joint/hip_joint_right/0/cmd_force',
-                     '-m', 'gz.msgs.Double', '-p', 'data: 0.0'],
-                output='screen'),
-            ExecuteProcess(
-                cmd=['gz', 'topic', '-t', '/model/pady/joint/arm_joint_left/0/cmd_force',
                      '-m', 'gz.msgs.Double', '-p', 'data: 0.0'],
                 output='screen'),
         ],
     )
 
     release = TimerAction(
-        period=10.5,
+        period=12.0,
         actions=[
             ExecuteProcess(
                 cmd=['gz', 'topic', '-t', '/model/pady/joint/hip_joint_right/0/cmd_force',
@@ -218,29 +197,24 @@ def generate_launch_description():
                 cmd=['gz', 'topic', '-t', '/model/pady/joint/hip_joint_left/0/cmd_force',
                      '-m', 'gz.msgs.Double', '-p', 'data: 0.0'],
                 output='screen'),
-            ExecuteProcess(
-                cmd=['gz', 'topic', '-t', '/model/pady/joint/arm_joint_right/0/cmd_force',
-                     '-m', 'gz.msgs.Double', '-p', 'data: 0.0'],
-                output='screen'),
-            ExecuteProcess(
-                cmd=['gz', 'topic', '-t', '/model/pady/joint/arm_joint_left/0/cmd_force',
-                     '-m', 'gz.msgs.Double', '-p', 'data: 0.0'],
-                output='screen'),
         ],
     )
 
-    hip_bias_node = Node(
-        package='pady_robot',
-        executable='continuous_hip_push.py',
-        output='screen',
-        parameters=[{
-            'torque': hip_push_torque,
-            'body_force': body_force,
-            'start_time': hip_push_start_time,
-            'stop_time': hip_push_stop_time,
-            'rate': 50.0,
-            'use_sim_time': use_sim_time,
-        }]
+    hip_bias_node = TimerAction(
+        period=9.0,
+        actions=[Node(
+            package='pady_robot',
+            executable='continuous_hip_push.py',
+            output='screen',
+            parameters=[{
+                'torque': hip_push_torque,
+                'body_force': body_force,
+                'start_time': hip_push_start_time,
+                'stop_time': hip_push_stop_time,
+                'rate': 50.0,
+                'use_sim_time': use_sim_time,
+            }],
+        )],
     )
 
     return LaunchDescription([
@@ -257,11 +231,11 @@ def generate_launch_description():
         robot_state_pub,
         joint_state_bridge,
         spawn_robot,       # T=5.0s:  spawn (paused)
-        kick_left,         # T=7.5s:  left hip kick (magnitude from kick_torque)
-        unpause,           # T=8.0s:  physics starts — left kick fires
-        kick_left_stop,    # T=8.15s: end left kick → 150 ms burst, then passive
-        kick_right,        # T=9.0s:  right hip kick (same magnitude as left)
-        kick_right_stop,   # T=9.15s: end right kick → 150 ms burst, then passive
-        release,           # T=10.5s: safety zero both hips
+        unpause,           # T=8.0s:  physics starts
+        kick_left,         # T=8.3s:  left hip kick (300ms after unpause)
+        kick_left_stop,    # T=8.6s:  end left kick (300ms burst)
+        kick_right,        # T=9.8s:  right hip kick (1.5s swing period)
+        kick_right_stop,   # T=10.1s: end right kick (300ms burst)
+        release,           # T=12.0s: safety zero hips
         hip_bias_node,     # python node handles persistent torque during swing
     ])

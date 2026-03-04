@@ -3,6 +3,20 @@
 # occurs when the bridge tries to validate the gz path (which contains "/0/")
 # as a ROS2 topic name.
 
+# Clock bridge — essential for use_sim_time nodes
+- ros_topic_name: "/clock"
+  gz_topic_name: "/clock"
+  ros_type_name: "rosgraph_msgs/msg/Clock"
+  gz_type_name: "gz.msgs.Clock"
+  direction: GZ_TO_ROS
+
+# World pose bridge — base_link height for gait analysis
+- ros_topic_name: "/world/pady_poses"
+  gz_topic_name: "/world/slope_world/dynamic_pose/info"
+  ros_type_name: "tf2_msgs/msg/TFMessage"
+  gz_type_name: "gz.msgs.Pose_V"
+  direction: GZ_TO_ROS
+
 - ros_topic_name: "/joint_states"
   gz_topic_name: "/world/slope_world/model/pady/joint_state"
   ros_type_name: "sensor_msgs/msg/JointState"

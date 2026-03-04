@@ -61,7 +61,6 @@ class GaitAnalyser(Node):
     def __init__(self):
         super().__init__('gait_analyser')
 
-        self.declare_parameter('use_sim_time', True)
         self.declare_parameter('fall_height_threshold', FALL_HEIGHT_THRESHOLD)
         self.declare_parameter('variance_window', VARIANCE_WINDOW)
 
@@ -238,3 +237,7 @@ def main(args=None):
     finally:
         node.destroy_node()
         rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()
