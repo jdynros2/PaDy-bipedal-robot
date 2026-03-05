@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Continuously publishes torque on hip joints during gait initiation.
+"""Publishes continuous assist torques during the configured gait window.
+
+This node is usually started by launch files (`spawn_pady`/`headless`).
+Tune values at launch level first (launch args), then edit defaults here only
+if you want global behavior changes.
 
 Parameters
 ----------
@@ -23,6 +27,7 @@ from std_msgs.msg import Float64
 
 
 def ns(n):
+    """Return topic name without leading slash for ROS namespace compatibility."""
     return n.lstrip("/")
 
 

@@ -1,5 +1,10 @@
 """Lightweight URDF viewer — robot_state_publisher + joint_state_publisher_gui + RViz2.
-   Use this for iterative URDF editing without Gazebo.
+    Use this for quick geometry/joint checks without Gazebo physics.
+
+    What to tune here vs elsewhere
+    -------------------------------
+    - Tune link/joint geometry, limits, and visuals in `urdf/pady.urdf`.
+    - Tune gait timing/forces in launch files (`spawn_pady` / `headless`).
 
    Usage (from a regular terminal, NOT VS Code's snap terminal):
      source /opt/ros/jazzy/setup.bash
