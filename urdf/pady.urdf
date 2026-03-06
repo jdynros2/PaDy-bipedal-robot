@@ -69,7 +69,7 @@
     <child link="thigh_right"/>
     <origin xyz="0 -0.10786 -0.017" rpy="0 0.1 0"/>
     <axis xyz="0 1 0"/>
-    <limit effort="100" lower="-0.5760" upper="0.5760" velocity="10.0"/>
+    <limit effort="400" lower="-0.5760" upper="0.5760" velocity="10.0"/>
     <dynamics damping="0.001" friction="0.001"/>
   </joint>
 
@@ -144,7 +144,7 @@
   <joint name="foot_joint_right" type="fixed">
     <parent link="shin_right"/>
     <child link="foot_right"/>
-    <origin xyz="0.020 0 -0.500" rpy="-0.10 0.0 0.0"/>
+    <origin xyz="0.020 0 -0.500" rpy="-0.1 0.0 0.0"/>
   </joint>
 
   <link name="foot_right">
@@ -180,7 +180,7 @@
     <child link="thigh_left"/>
     <origin xyz="0 0.10786 -0.017" rpy="0 -0.1 0"/>
     <axis xyz="0 1 0"/>
-    <limit effort="100" lower="-0.5760" upper="0.5760" velocity="10.0"/>
+    <limit effort="400" lower="-0.5760" upper="0.5760" velocity="10.0"/>
     <dynamics damping="0.001" friction="0.001"/>
   </joint>
 
@@ -288,7 +288,7 @@
     <origin xyz="0.015 -0.2585 0.0065" rpy="0 -1.5708 0"/>
     <axis xyz="0 1 0"/>
     <limit effort="0" lower="-1.25" upper="1.25" velocity="8.0"/>
-    <dynamics damping="0.003" friction="0.0001"/>
+    <dynamics damping="0.02" friction="0.0001"/>
   </joint>
 
   <link name="arm_right">
@@ -323,7 +323,7 @@
     <origin xyz="0.015 0.2585 0.0065" rpy="0 -1.5708 0"/>
     <axis xyz="0 1 0"/>
     <limit effort="0" lower="-1.25" upper="1.25" velocity="8.0"/>
-    <dynamics damping="0.003" friction="0.0001"/>
+    <dynamics damping="0.02" friction="0.0001"/>
   </joint>
 
   <link name="arm_left">

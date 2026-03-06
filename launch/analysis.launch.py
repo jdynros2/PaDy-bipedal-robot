@@ -39,11 +39,17 @@ def generate_launch_description():
     kick_torque_arg = DeclareLaunchArgument(
         'kick_torque', default_value='30.0',
         description='Hip kick magnitude (N·m)')
+    kick_torque_right_arg = DeclareLaunchArgument(
+        'kick_torque_right', default_value='-30.0',
+        description='Right-hip initial kick torque (N·m), usually opposite sign to left')
+    kick_follow_torque_arg = DeclareLaunchArgument(
+        'kick_follow_torque', default_value='-18.0',
+        description='Right-hip follow-through torque after initial kick (N·m)')
     hip_push_torque_arg = DeclareLaunchArgument(
         'hip_push_torque', default_value='5.0',
         description='Hip bias torque (N·m)')
     hip_push_start_arg = DeclareLaunchArgument(
-        'hip_push_start_time', default_value='7.0',
+        'hip_push_start_time', default_value='0.8',
         description='Bias start time (s)')
     hip_push_stop_arg = DeclareLaunchArgument(
         'hip_push_stop_time', default_value='12.0',
@@ -78,6 +84,8 @@ def generate_launch_description():
         launch_arguments={
             'rvizconfig':           analysis_rviz,
             'kick_torque':          LaunchConfiguration('kick_torque'),
+            'kick_torque_right':    LaunchConfiguration('kick_torque_right'),
+            'kick_follow_torque':   LaunchConfiguration('kick_follow_torque'),
             'hip_push_torque':      LaunchConfiguration('hip_push_torque'),
             'hip_push_start_time':  LaunchConfiguration('hip_push_start_time'),
             'hip_push_stop_time':   LaunchConfiguration('hip_push_stop_time'),
@@ -138,6 +146,8 @@ def generate_launch_description():
     return LaunchDescription([
         use_sim_time_arg,
         kick_torque_arg,
+        kick_torque_right_arg,
+        kick_follow_torque_arg,
         hip_push_torque_arg,
         hip_push_start_arg,
         hip_push_stop_arg,

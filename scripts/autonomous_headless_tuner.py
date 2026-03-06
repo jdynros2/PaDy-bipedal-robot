@@ -24,7 +24,7 @@ INTER_TRIAL_PAUSE = 3.0
 
 WORLD = 'slope_3deg.sdf'
 SPAWN_X = 0.45
-HIP_PUSH_START = 7.0
+HIP_PUSH_START = 0.8
 
 
 @dataclass

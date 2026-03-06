@@ -204,7 +204,7 @@ def launch_trial(setup: Setup) -> str | None:
         f'world:={setup.world}',
         f'kick_torque:={setup.kick_torque:.3f}',
         f'hip_push_torque:={setup.hip_push_torque:.3f}',
-        'hip_push_start_time:=7.000',
+        'hip_push_start_time:=0.800',
         f'hip_push_stop_time:={setup.hip_push_stop_time:.3f}',
         f'body_force:={setup.body_force:.3f}',
         f'spawn_x:={setup.spawn_x:.3f}',
