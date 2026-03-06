@@ -73,7 +73,7 @@ def generate_launch_description():
         description='Initial x-coordinate')
     spawn_x = LaunchConfiguration('spawn_x')
     spawn_pitch_arg = DeclareLaunchArgument(
-        'spawn_pitch', default_value='0.275',
+        'spawn_pitch', default_value='0.28',
         description='Initial forward pitch (rad)')
     spawn_pitch = LaunchConfiguration('spawn_pitch')
 

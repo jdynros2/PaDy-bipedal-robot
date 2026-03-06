@@ -23,7 +23,7 @@
      correct — only the visual/collision origins needed fixing.
 
     Practical tuning map (edit in this file)
-    ----------------------------------------
+    ========================================
     - Foot cant: <joint name="foot_joint_*"> origin rpy roll values.
     - Contact grip/compliance: <gazebo reference="foot_*"> mu1/mu2/kp/kd.
     - Joint passivity/damping: <joint ...><dynamics damping="..."/>.
@@ -144,7 +144,7 @@
   <joint name="foot_joint_right" type="fixed">
     <parent link="shin_right"/>
     <child link="foot_right"/>
-    <origin xyz="0.020 0 -0.500" rpy="-0.1 0.0 0.0"/>
+    <origin xyz="0.020 0 -0.500" rpy="-0.05 0.0 0.0"/>
   </joint>
 
   <link name="foot_right">
@@ -243,7 +243,7 @@
   <joint name="foot_joint_left" type="fixed">
     <parent link="shin_left"/>
     <child link="foot_left"/>
-    <origin xyz="0.020 0 -0.500" rpy="0.1 0.0 0.0"/>
+    <origin xyz="0.020 0 -0.500" rpy="0.05 0.0 0.0"/>
   </joint>
 
   <link name="foot_left">

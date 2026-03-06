@@ -13,12 +13,13 @@ hip_left       – hip_joint_left  position   (rad)
 knee_right     – knee_joint_right position  (rad)
 knee_left      – knee_joint_left  position  (rad)
 hip_symmetry   – hip_right + hip_left       (rad, ≈0 for symmetric gait)
-base_height    – world-z of base_link       (m)
+base_height    – projected base height above slope plane (m)
 hip_variance   – rolling population std of [hip_right, hip_left] over window
 knee_variance  – rolling population std of [knee_right, knee_left] over window
-gait_period    – time between consecutive hip_right zero-crossings (s)
+gait_period    – time between detected steps (first non-zero value = time-to-first-step, then step-to-step period) (s)
 step_count     – Int32, cumulative zero-crossing count
-fall_detected  – Bool, True once base_height < threshold
+fall_detected  – Bool, True once projected height < (0.25 × initial projected height)
+                 or base attitude exceeds roll/pitch limits
 
 On shutdown (or first fall): flushes CSV to ~/ros2_ws/data/run_<timestamp>.csv
 
@@ -72,10 +73,14 @@ def _quat_to_rpy(q):
 
 
 # ── tuneable analysis constants (edit here for global behavior changes) ─────
-FALL_HEIGHT_FRACTION = 0.25     # fall if slope_height drops below this fraction of initial
+FALL_HEIGHT_FRACTION = 0.25     # fall if projected slope-height drops below this fraction of initial
+FALL_ROLL_RAD = 1.20            # fall if |roll| exceeds this (rad)
+FALL_PITCH_RAD = 1.30           # fall if |pitch| exceeds this (rad)
 VARIANCE_WINDOW = 60            # default samples per joint for rolling std (can override by param)
 STEP_DEBOUNCE_S = 0.25          # min time between counted zero-crossings
 STEP_MIN_AMPLITUDE = 0.15       # min |hip| peak since last crossing to count a step
+KNEE_STEP_ARM_RAD = 0.35        # arm a knee-step once flexion exceeds this angle
+KNEE_STEP_FIRE_RAD = 0.08       # count touchdown when armed knee extends below this angle
 SLOPE_ANGLE = 0.0611            # world slope angle used for height projection
 CSV_INTERVAL = 1.0 / 30.0       # CSV write rate (seconds)
 DATA_DIR = os.path.expanduser('~/ros2_ws/data')
@@ -119,7 +124,10 @@ class GaitAnalyser(Node):
         self._prev_sign_l = None         # previous sign of hip_left
         self._peak_r = 0.0               # peak |hip_r| since last right zero-crossing
         self._peak_l = 0.0               # peak |hip_l| since last left zero-crossing
+        self._knee_r_armed = False       # true after right knee enters swing flexion zone
+        self._knee_l_armed = False       # true after left knee enters swing flexion zone
         self._step_count = 0
+        self._run_start_t = None         # first valid sim timestamp seen by analyser
         self._last_step_t = 0.0
         self._gait_period = 0.0
         self._fallen      = False
@@ -138,7 +146,7 @@ class GaitAnalyser(Node):
             'sim_time_s',
             'hip_right_rad', 'hip_left_rad',
             'knee_right_rad', 'knee_left_rad',
-            'base_x_m', 'base_y_m', 'base_z_m',
+            'base_x_m', 'base_y_m',
             'base_roll_rad', 'base_pitch_rad', 'base_yaw_rad',
             'slope_height_m',
             'arm_right_rad', 'arm_left_rad',
@@ -191,6 +199,8 @@ class GaitAnalyser(Node):
             return
 
         sim_t = self.get_clock().now().nanoseconds / 1e9
+        if self._run_start_t is None:
+            self._run_start_t = sim_t
 
         # ── latest world pose (from /pady/pose subscriber) ───────────────────
         nan = float('nan')
@@ -211,24 +221,34 @@ class GaitAnalyser(Node):
         hip_var  = self._pstdev(self._hip_win)
         knee_var = self._pstdev(self._knee_win)
 
-        # ── fall detection: compare projected height against initialized limit ─
+        # ── fall detection: projected height + attitude guardrails ─
         if has_pose and not self._fallen:
             if self._initial_slope_h is None:
                 self._initial_slope_h = slope_h
                 self._fall_threshold = slope_h * FALL_HEIGHT_FRACTION
                 self.get_logger().info(
                     f'Initial slope height = {slope_h:.3f}m, '
-                    f'fall threshold = {self._fall_threshold:.3f}m'
+                    f'fall threshold = {self._fall_threshold:.3f}m, '
+                    f'|roll|>{FALL_ROLL_RAD:.2f}rad or |pitch|>{FALL_PITCH_RAD:.2f}rad'
                 )
-            elif slope_h < self._fall_threshold:
-                self._fallen = True
-                self.get_logger().warn(
-                    f'FALL DETECTED  t={sim_t:.2f}s  slope_h={slope_h:.3f}m  '
-                    f'threshold={self._fall_threshold:.3f}m  steps={self._step_count}'
-                )
-                self._csv_file.flush()
+            else:
+                fell_by_height = slope_h < self._fall_threshold
+                fell_by_attitude = (abs(b_roll) > FALL_ROLL_RAD) or (abs(b_pitch) > FALL_PITCH_RAD)
+                if not (fell_by_height or fell_by_attitude):
+                    pass
+                else:
+                    self._fallen = True
+                    reason = 'height' if fell_by_height else 'attitude'
+                    self.get_logger().warn(
+                        f'FALL DETECTED ({reason})  t={sim_t:.2f}s  '
+                        f'slope_h={slope_h:.3f}m  threshold={self._fall_threshold:.3f}m  '
+                        f'roll={b_roll:.3f}rad  pitch={b_pitch:.3f}rad  steps={self._step_count}'
+                    )
+                    self._csv_file.flush()
 
         # ── step counting (frozen once fallen) ─────────────────────────────────
+        # Primary detector: hip zero-crossings with amplitude and debounce.
+        # Backup detector: knee touchdown (flexed knee extends back near 0 rad).
         sign_r = 1 if hip_r >= 0.0 else -1
         sign_l = 1 if hip_l >= 0.0 else -1
         self._peak_r = max(self._peak_r, abs(hip_r))
@@ -242,6 +262,8 @@ class GaitAnalyser(Node):
                     stepped = True
                     if self._last_step_t > 0.0:
                         self._gait_period = dt
+                    elif self._run_start_t is not None:
+                        self._gait_period = max(0.0, sim_t - self._run_start_t)
                     self._last_step_t = sim_t
                 self._peak_r = 0.0
             if self._prev_sign_l is not None and sign_l != self._prev_sign_l:
@@ -250,8 +272,42 @@ class GaitAnalyser(Node):
                     self._step_count += 1
                     if self._last_step_t > 0.0:
                         self._gait_period = dt
+                    elif self._run_start_t is not None:
+                        self._gait_period = max(0.0, sim_t - self._run_start_t)
                     self._last_step_t = sim_t
+                    stepped = True
                 self._peak_l = 0.0
+
+            # Knee touchdown step detector (helps count first physical step when
+            # hip sign does not cross zero before fall).
+            if knee_r >= KNEE_STEP_ARM_RAD:
+                self._knee_r_armed = True
+            if knee_l >= KNEE_STEP_ARM_RAD:
+                self._knee_l_armed = True
+
+            if self._knee_r_armed and knee_r <= KNEE_STEP_FIRE_RAD and not stepped:
+                dt = sim_t - self._last_step_t
+                if dt >= STEP_DEBOUNCE_S:
+                    self._step_count += 1
+                    if self._last_step_t > 0.0:
+                        self._gait_period = dt
+                    elif self._run_start_t is not None:
+                        self._gait_period = max(0.0, sim_t - self._run_start_t)
+                    self._last_step_t = sim_t
+                    stepped = True
+                self._knee_r_armed = False
+
+            if self._knee_l_armed and knee_l <= KNEE_STEP_FIRE_RAD and not stepped:
+                dt = sim_t - self._last_step_t
+                if dt >= STEP_DEBOUNCE_S:
+                    self._step_count += 1
+                    if self._last_step_t > 0.0:
+                        self._gait_period = dt
+                    elif self._run_start_t is not None:
+                        self._gait_period = max(0.0, sim_t - self._run_start_t)
+                    self._last_step_t = sim_t
+                    stepped = True
+                self._knee_l_armed = False
         self._prev_sign_r = sign_r
         self._prev_sign_l = sign_l
 
@@ -287,7 +343,7 @@ class GaitAnalyser(Node):
                 f'{sim_t:.4f}',
                 f'{hip_r:.6f}',  f'{hip_l:.6f}',
                 f'{knee_r:.6f}', f'{knee_l:.6f}',
-                _fv(bx), _fv(by), _fv(bz),
+                _fv(bx), _fv(by),
                 _fv(b_roll, '.6f'), _fv(b_pitch, '.6f'), _fv(b_yaw, '.6f'),
                 _fv(slope_h),
                 _fj(arm_r), _fj(arm_l),
