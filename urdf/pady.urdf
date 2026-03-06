@@ -111,7 +111,7 @@
     <axis xyz="0 1 0"/>
     <limit effort="0" lower="0.0" upper="1.1345" velocity="10.0"/>
     <!-- no damping: knee behaves as ideal hinge, inertia alone governs swing -->
-    <dynamics damping="0.0" friction="0.001"/>
+    <dynamics damping="0.0" friction="0.0001"/>
   </joint>
 
   <link name="shin_right">
@@ -144,7 +144,7 @@
   <joint name="foot_joint_right" type="fixed">
     <parent link="shin_right"/>
     <child link="foot_right"/>
-    <origin xyz="0.020 0 -0.500" rpy="-0.05 0.0 0.0"/>
+    <origin xyz="0.020 0 -0.500" rpy="-0.10 0.0 0.0"/>
   </joint>
 
   <link name="foot_right">
@@ -214,7 +214,7 @@
     <origin xyz="0 0 -0.500" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
     <limit effort="0" lower="0.0" upper="1.1345" velocity="10.0"/>
-    <dynamics damping="0.0" friction="0.001"/>
+    <dynamics damping="0.0" friction="0.0001"/>
   </joint>
 
   <link name="shin_left">
@@ -243,7 +243,7 @@
   <joint name="foot_joint_left" type="fixed">
     <parent link="shin_left"/>
     <child link="foot_left"/>
-    <origin xyz="0.020 0 -0.500" rpy="0.05 0.0 0.0"/>
+    <origin xyz="0.020 0 -0.500" rpy="0.1 0.0 0.0"/>
   </joint>
 
   <link name="foot_left">
@@ -285,10 +285,10 @@
   <joint name="arm_joint_right" type="revolute">
     <parent link="base_link"/>
     <child link="arm_right"/>  
-    <origin xyz="0.015 -0.26 0.005" rpy="0 -1.5708 0"/>
+    <origin xyz="0.015 -0.2585 0.0065" rpy="0 -1.5708 0"/>
     <axis xyz="0 1 0"/>
-    <limit effort="0" lower="-3.14159" upper="3.14159" velocity="10.0"/>
-    <dynamics damping="0.001" friction="0.001"/>
+    <limit effort="0" lower="-1.25" upper="1.25" velocity="8.0"/>
+    <dynamics damping="0.003" friction="0.0001"/>
   </joint>
 
   <link name="arm_right">
@@ -309,10 +309,10 @@
     </collision>
     <inertial>
       <mass value="0.250"/>
-      <origin xyz="-0.13 0 0" rpy="0 0 0"/>
-      <inertia ixx="3.0e-5" ixy="0.0" ixz="0.0"
-               iyy="3.5e-3" iyz="0.0"
-               izz="3.5e-3"/>
+      <origin xyz="-0.160 0 0" rpy="0 0 0"/>
+      <inertia ixx="5.0e-5" ixy="0.0" ixz="0.0"
+               iyy="5.2e-3" iyz="0.0"
+               izz="5.2e-3"/>
     </inertial>
   </link>
 
@@ -320,10 +320,10 @@
   <joint name="arm_joint_left" type="revolute">
     <parent link="base_link"/>
     <child link="arm_left"/>
-    <origin xyz="0.015 0.257 0.008" rpy="0 -1.5708 0"/>
+    <origin xyz="0.015 0.2585 0.0065" rpy="0 -1.5708 0"/>
     <axis xyz="0 1 0"/>
-    <limit effort="0" lower="-3.14159" upper="3.14159" velocity="10.0"/>
-    <dynamics damping="0.001" friction="0.001"/>
+    <limit effort="0" lower="-1.25" upper="1.25" velocity="8.0"/>
+    <dynamics damping="0.003" friction="0.0001"/>
   </joint>
 
   <link name="arm_left">
@@ -344,10 +344,10 @@
     </collision>
     <inertial>
       <mass value="0.250"/>
-      <origin xyz="-0.13 0 0" rpy="0 0 0"/>
-      <inertia ixx="3.0e-5" ixy="0.0" ixz="0.0"
-               iyy="3.5e-3" iyz="0.0"
-               izz="3.5e-3"/>
+      <origin xyz="-0.160 0 0" rpy="0 0 0"/>
+      <inertia ixx="5.0e-5" ixy="0.0" ixz="0.0"
+               iyy="5.2e-3" iyz="0.0"
+               izz="5.2e-3"/>
     </inertial>
   </link>
   <!-- ═══════════════════════════════════════════════════════════════

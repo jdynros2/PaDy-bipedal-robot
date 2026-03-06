@@ -57,6 +57,9 @@ def generate_launch_description():
     spawn_pitch_arg = DeclareLaunchArgument(
         'spawn_pitch', default_value='0.275',
         description='Initial forward pitch (rad)')
+    spawn_roll_arg = DeclareLaunchArgument(
+        'spawn_roll', default_value='-0.08',
+        description='Initial lateral roll (rad)')
     world_arg = DeclareLaunchArgument(
         'world', default_value='slope_3deg.sdf',
         description='World SDF filename inside pady_robot/worlds')
@@ -81,6 +84,7 @@ def generate_launch_description():
             'body_force':           LaunchConfiguration('body_force'),
             'spawn_x':              LaunchConfiguration('spawn_x'),
             'spawn_pitch':          LaunchConfiguration('spawn_pitch'),
+            'spawn_roll':           LaunchConfiguration('spawn_roll'),
             'world':                LaunchConfiguration('world'),
             'use_sim_time':         LaunchConfiguration('use_sim_time'),
         }.items(),
@@ -140,6 +144,7 @@ def generate_launch_description():
         body_force_arg,
         spawn_x_arg,
         spawn_pitch_arg,
+        spawn_roll_arg,
         world_arg,
         sim_launch,
         analyser_node,

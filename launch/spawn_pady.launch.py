@@ -76,6 +76,10 @@ def generate_launch_description():
         'spawn_pitch', default_value='0.28',
         description='Initial forward pitch (rad)')
     spawn_pitch = LaunchConfiguration('spawn_pitch')
+    spawn_roll_arg = DeclareLaunchArgument(
+        'spawn_roll', default_value='-0.08',
+        description='Initial lateral roll (rad)')
+    spawn_roll = LaunchConfiguration('spawn_roll')
 
     # RViz config can be swapped per run with `rvizconfig:=...`.
     rviz_config_arg = DeclareLaunchArgument(
@@ -104,7 +108,7 @@ def generate_launch_description():
                     '-x',      spawn_x,
                     '-y',      '0',
                     '-z',      '1.42',
-                    '-R',      '-0.2',
+                    '-R',      spawn_roll,
                     '-P',      spawn_pitch,  # launch arg: initial forward lean
                     '-Y',      '0',
                     '-J', 'hip_joint_right',  '0.55',   # stance: foot 0.56m ahead of hip
@@ -245,6 +249,7 @@ def generate_launch_description():
         body_force_arg,
         spawn_x_arg,
         spawn_pitch_arg,
+        spawn_roll_arg,
         world_arg,
         rviz_config_arg,
         gazebo,

@@ -81,6 +81,9 @@ def generate_launch_description():
     spawn_pitch_arg = DeclareLaunchArgument('spawn_pitch', default_value='0.275',
                                             description='Initial forward pitch (rad)')
     spawn_pitch = LaunchConfiguration('spawn_pitch')
+    spawn_roll_arg = DeclareLaunchArgument('spawn_roll', default_value='-0.08',
+                                           description='Initial lateral roll (rad)')
+    spawn_roll = LaunchConfiguration('spawn_roll')
 
     # ── Gazebo server-only mode (faster for sweeps) ──────────────────────────
     gazebo = ExecuteProcess(
@@ -99,7 +102,7 @@ def generate_launch_description():
                 '-x',      spawn_x,
                 '-y',      '0',
                 '-z',      '1.42',
-                '-R',      '-0.2',
+                '-R',      spawn_roll,
                 '-P',      spawn_pitch,
                 '-Y',      '0',
                 '-J', 'hip_joint_right',  '0.55',
@@ -203,7 +206,7 @@ def generate_launch_description():
         use_sim_time_arg,
         kick_torque_arg, hip_push_torque_arg,
         hip_push_start_arg, hip_push_stop_arg,
-        body_force_arg, spawn_x_arg, spawn_pitch_arg,
+        body_force_arg, spawn_x_arg, spawn_pitch_arg, spawn_roll_arg,
         world_arg,
         gazebo,
         robot_state_pub,

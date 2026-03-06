@@ -79,6 +79,8 @@ FALL_PITCH_RAD = 1.30           # fall if |pitch| exceeds this (rad)
 VARIANCE_WINDOW = 60            # default samples per joint for rolling std (can override by param)
 STEP_DEBOUNCE_S = 0.25          # min time between counted zero-crossings
 STEP_MIN_AMPLITUDE = 0.15       # min |hip| peak since last crossing to count a step
+STEP_COUNT_MAX_ROLL_RAD = 0.70  # do not count steps when roll exceeds this (near-fall posture)
+STEP_COUNT_MAX_PITCH_RAD = 1.00 # do not count steps when pitch exceeds this (near-fall posture)
 KNEE_STEP_ARM_RAD = 0.35        # arm a knee-step once flexion exceeds this angle
 KNEE_STEP_FIRE_RAD = 0.08       # count touchdown when armed knee extends below this angle
 SLOPE_ANGLE = 0.0611            # world slope angle used for height projection
@@ -254,10 +256,14 @@ class GaitAnalyser(Node):
         self._peak_r = max(self._peak_r, abs(hip_r))
         self._peak_l = max(self._peak_l, abs(hip_l))
         stepped = False
+        pose_ok_for_count = (not has_pose) or (
+            abs(b_roll) <= STEP_COUNT_MAX_ROLL_RAD and
+            abs(b_pitch) <= STEP_COUNT_MAX_PITCH_RAD
+        )
         if not self._fallen:
             if self._prev_sign_r is not None and sign_r != self._prev_sign_r:
                 dt = sim_t - self._last_step_t
-                if dt >= STEP_DEBOUNCE_S and self._peak_r >= STEP_MIN_AMPLITUDE:
+                if dt >= STEP_DEBOUNCE_S and self._peak_r >= STEP_MIN_AMPLITUDE and pose_ok_for_count:
                     self._step_count += 1
                     stepped = True
                     if self._last_step_t > 0.0:
@@ -268,7 +274,7 @@ class GaitAnalyser(Node):
                 self._peak_r = 0.0
             if self._prev_sign_l is not None and sign_l != self._prev_sign_l:
                 dt = sim_t - self._last_step_t
-                if dt >= STEP_DEBOUNCE_S and not stepped and self._peak_l >= STEP_MIN_AMPLITUDE:
+                if dt >= STEP_DEBOUNCE_S and not stepped and self._peak_l >= STEP_MIN_AMPLITUDE and pose_ok_for_count:
                     self._step_count += 1
                     if self._last_step_t > 0.0:
                         self._gait_period = dt
@@ -287,7 +293,7 @@ class GaitAnalyser(Node):
 
             if self._knee_r_armed and knee_r <= KNEE_STEP_FIRE_RAD and not stepped:
                 dt = sim_t - self._last_step_t
-                if dt >= STEP_DEBOUNCE_S:
+                if dt >= STEP_DEBOUNCE_S and pose_ok_for_count:
                     self._step_count += 1
                     if self._last_step_t > 0.0:
                         self._gait_period = dt
@@ -299,7 +305,7 @@ class GaitAnalyser(Node):
 
             if self._knee_l_armed and knee_l <= KNEE_STEP_FIRE_RAD and not stepped:
                 dt = sim_t - self._last_step_t
-                if dt >= STEP_DEBOUNCE_S:
+                if dt >= STEP_DEBOUNCE_S and pose_ok_for_count:
                     self._step_count += 1
                     if self._last_step_t > 0.0:
                         self._gait_period = dt
