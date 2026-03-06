@@ -1,18 +1,19 @@
-"""analysis.launch.py — PaDy full experimental data-collection launch.
+"""analysis.launch.py — Data-collection launch for repeatable experiments.
 
 Wraps spawn_pady.launch.py and adds:
-  • gait_analyser node  — publishes /gait/* metrics, auto-saves CSV
-  • rqt_plot (joint angles)        — live plot: hip + knee angles
-  • rqt_plot (performance metrics) — live plot: base height + symmetry + variance
-  • ros2 bag record                — records all /gait/* + /joint_states + /tf
+  * gait_analyser node  — publishes /gait/* metrics, auto-saves CSV
+    * ros2 bag record     — records core run topics for post-analysis
 
-Override the RViz config to use pady_analysis.rviz (world-frame view with TF display).
+Where to adjust parameters
+--------------------------
+- Gait/force/start-pose tuning: launch args in this file (passed to spawn).
+- Bag content: `bag_record` topic list in this file.
+- Metric definitions and CSV columns: `scripts/gait_analyser.py`.
 
 Usage
 -----
 ros2 launch pady_robot analysis.launch.py
 ros2 launch pady_robot analysis.launch.py kick_torque:=40.0 hip_push_torque:=8.0
-ros2 launch pady_robot analysis.launch.py record_bag:=false
 """
 
 import datetime
@@ -34,7 +35,7 @@ from launch_ros.actions import Node
 def generate_launch_description():
     pkg_dir = get_package_share_directory('pady_robot')
 
-    # ── pass-through gait parameters ─────────────────────────────────────────
+    # ── pass-through tuning args (edit defaults here or override on CLI) ────
     kick_torque_arg = DeclareLaunchArgument(
         'kick_torque', default_value='30.0',
         description='Hip kick magnitude (N·m)')
@@ -54,24 +55,19 @@ def generate_launch_description():
         'spawn_x', default_value='0.45',
         description='Initial x-coordinate')
     spawn_pitch_arg = DeclareLaunchArgument(
-        'spawn_pitch', default_value='0.28',
+        'spawn_pitch', default_value='0.275',
         description='Initial forward pitch (rad)')
+    world_arg = DeclareLaunchArgument(
+        'world', default_value='slope_3deg.sdf',
+        description='World SDF filename inside pady_robot/worlds')
     use_sim_time_arg = DeclareLaunchArgument(
         'use_sim_time', default_value='true',
         description='Use simulation time')
 
-    # ── analysis-specific parameters ─────────────────────────────────────────
-    record_bag_arg = DeclareLaunchArgument(
-        'record_bag', default_value='true',
-        description='Record a rosbag of all /gait/* and /joint_states topics')
-    fall_threshold_arg = DeclareLaunchArgument(
-        'fall_height_threshold', default_value='0.35',
-        description='World-z below which fall is declared (m)')
-
-    # ── RViz: override to world-frame analysis config ─────────────────────────
+    # ── Use analysis RViz layout (world-frame metrics view) ──────────────────
     analysis_rviz = os.path.join(pkg_dir, 'rviz', 'pady_analysis.rviz')
 
-    # ── include the main simulation launch ───────────────────────────────────
+    # ── Include main simulation launch (single source of gait timing) ───────
     sim_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(pkg_dir, 'launch', 'spawn_pady.launch.py')
@@ -85,64 +81,38 @@ def generate_launch_description():
             'body_force':           LaunchConfiguration('body_force'),
             'spawn_x':              LaunchConfiguration('spawn_x'),
             'spawn_pitch':          LaunchConfiguration('spawn_pitch'),
+            'world':                LaunchConfiguration('world'),
             'use_sim_time':         LaunchConfiguration('use_sim_time'),
         }.items(),
     )
 
-    # ── gait analyser node ────────────────────────────────────────────────────
-    analyser_node = Node(
-        package='pady_robot',
-        executable='gait_analyser.py',
-        name='gait_analyser',
-        output='screen',
-        parameters=[{
-            'use_sim_time':           LaunchConfiguration('use_sim_time'),
-            'fall_height_threshold':  LaunchConfiguration('fall_height_threshold'),
-        }],
-    )
-
-    # ── rqt_plot — joint angles ───────────────────────────────────────────────
-    # Delay until analyser is publishing (topics appear ~8s in after physics starts)
-    rqt_joints = TimerAction(
-        period=12.0,
-        actions=[ExecuteProcess(
-            cmd=[
-                'rqt_plot',
-                '/gait/hip_right/data',
-                '/gait/hip_left/data',
-                '/gait/knee_right/data',
-                '/gait/knee_left/data',
-            ],
+    # ── Start analyser before unpause so step-1 is captured in CSV/bag ───────
+    analyser_node = TimerAction(
+        period=7.0,
+        actions=[Node(
+            package='pady_robot',
+            executable='gait_analyser.py',
+            name='gait_analyser',
             output='screen',
+            parameters=[{
+                'use_sim_time':           LaunchConfiguration('use_sim_time'),
+            }],
         )],
     )
 
-    # ── rqt_plot — performance metrics ───────────────────────────────────────
-    rqt_perf = TimerAction(
-        period=12.0,
-        actions=[ExecuteProcess(
-            cmd=[
-                'rqt_plot',
-                '/gait/base_height/data',
-                '/gait/hip_symmetry/data',
-                '/gait/hip_variance/data',
-                '/gait/knee_variance/data',
-            ],
-            output='screen',
-        )],
-    )
-
-    # ── ros2 bag record ───────────────────────────────────────────────────────
+    # ── Rosbag capture set (edit this list when adding/removing metrics) ─────
     ts = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
     bag_dir = os.path.expanduser(f'~/ros2_ws/data/bag_{ts}')
 
     bag_record = TimerAction(
-        period=7.0,   # start recording just before physics unpauses
+        period=7.0,
         actions=[ExecuteProcess(
             cmd=[
                 'ros2', 'bag', 'record',
                 '-o', bag_dir,
+                '--topics',
                 '/joint_states',
+                '/pady/pose',
                 '/gait/hip_right',
                 '/gait/hip_left',
                 '/gait/knee_right',
@@ -162,7 +132,6 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
-        # ── declare args ──────────────────────────────────────────────────────
         use_sim_time_arg,
         kick_torque_arg,
         hip_push_torque_arg,
@@ -171,13 +140,8 @@ def generate_launch_description():
         body_force_arg,
         spawn_x_arg,
         spawn_pitch_arg,
-        record_bag_arg,
-        fall_threshold_arg,
-        # ── simulation ────────────────────────────────────────────────────────
+        world_arg,
         sim_launch,
-        # ── analysis tools ───────────────────────────────────────────────────
         analyser_node,
         bag_record,
-        rqt_joints,
-        rqt_perf,
     ])

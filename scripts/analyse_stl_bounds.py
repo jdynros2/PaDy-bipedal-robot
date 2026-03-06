@@ -2,6 +2,9 @@
 """
 Analyse STL bounding boxes to determine joint positions in CAD coordinates.
 
+This is an offline geometry helper script (not part of runtime gait control).
+Use it when re-exporting meshes or re-aligning URDF visual/collision origins.
+
 Usage:
     python3 src/pady_robot/scripts/analyse_stl_bounds.py
 
@@ -9,6 +12,9 @@ The STLs are exported from Fusion 360 as a single assembly in absolute
 CAD world coordinates (Y-up). This script prints the bounding box of each
 mesh so you can identify joint positions and compute the URDF visual/collision
 origin offsets.
+
+If you only want to tune gait behavior, edit launch args / URDF dynamics instead;
+you usually do not need this script.
 
 Axis mapping (CAD → URDF):
     CAD X → URDF Y   (lateral)

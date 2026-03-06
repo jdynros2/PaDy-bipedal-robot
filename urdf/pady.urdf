@@ -21,6 +21,15 @@
 
      Hip / knee joint origins and limits define the kinematics and are
      correct — only the visual/collision origins needed fixing.
+
+    Practical tuning map (edit in this file)
+    ========================================
+    - Foot cant: <joint name="foot_joint_*"> origin rpy roll values.
+    - Contact grip/compliance: <gazebo reference="foot_*"> mu1/mu2/kp/kd.
+    - Joint passivity/damping: <joint ...><dynamics damping="..."/>.
+    - Mass/inertia distribution: each link <inertial> block.
+
+    Runtime force/timing parameters are tuned in launch files, not here.
 -->
 
 <robot name="pady">
@@ -31,14 +40,14 @@
   <link name="base_link">
     <visual>
       <!-- CAD origin (0,1018,0) mm → offset (0, 0, -1.018) m -->
-      <origin xyz="0 0 -1.018" rpy="1.5708 0 1.5708"/>
+      <origin xyz="1.042 0.037 -0.005" rpy="0 0 1.5708"/>
       <geometry>
         <mesh filename="package://pady_robot/meshes/visual/base_link.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="blue"><color rgba="0.2 0.4 0.8 1.0"/></material>
     </visual>
     <collision>
-      <origin xyz="0 0 -1.018" rpy="1.5708 0 1.5708"/>
+      <origin xyz="1.042 0.037 -0.005" rpy="0 0 1.5708"/>
       <geometry>
         <mesh filename="package://pady_robot/meshes/visual/base_link.stl" scale="0.001 0.001 0.001"/>
       </geometry>
@@ -60,7 +69,7 @@
     <child link="thigh_right"/>
     <origin xyz="0 -0.10786 -0.017" rpy="0 0.1 0"/>
     <axis xyz="0 1 0"/>
-    <limit effort="100" lower="-1.57" upper="1.57" velocity="10.0"/>
+    <limit effort="100" lower="-0.5760" upper="0.5760" velocity="10.0"/>
     <dynamics damping="0.001" friction="0.001"/>
   </joint>
 
@@ -149,28 +158,9 @@
       <material name="dark_grey"><color rgba="0.3 0.3 0.3 1.0"/></material>
     </visual>
     <collision>
-      <!-- Three tangent cylinders give continuous sole coverage matching the STL.
-           Mesh bounds in foot_right frame (from STL analysis):
-             X (forward): -0.028 m (heel) to +0.168 m (toe)
-             Z (bottom) : -0.067 m (sole)
-           Cylinders at x=0.00, 0.07, 0.14 with radius=0.035 cover x=-0.035 to +0.175 m,
-           fully enclosing the mesh.  All share the same bottom: z = -0.032-0.035 = -0.067 m.
-           cylinder axis along Y (Rx=90°) → foot rolls forward/backward on the slope. -->
-      <origin xyz="0.00 0 -0.032" rpy="1.5708 0 0"/>
+      <origin xyz="0.1175 -0.1085 -0.020" rpy="0 0 4.71239"/>
       <geometry>
-        <cylinder radius="0.035" length="0.20"/>
-      </geometry>
-    </collision>
-    <collision>
-      <origin xyz="0.07 0 -0.032" rpy="1.5708 0 0"/>
-      <geometry>
-        <cylinder radius="0.035" length="0.20"/>
-      </geometry>
-    </collision>
-    <collision>
-      <origin xyz="0.14 0 -0.032" rpy="1.5708 0 0"/>
-      <geometry>
-        <cylinder radius="0.035" length="0.20"/>
+        <mesh filename="package://pady_robot/meshes/visual/right_foot.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
     <inertial>
@@ -190,7 +180,7 @@
     <child link="thigh_left"/>
     <origin xyz="0 0.10786 -0.017" rpy="0 -0.1 0"/>
     <axis xyz="0 1 0"/>
-    <limit effort="100" lower="-1.57" upper="1.57" velocity="10.0"/>
+    <limit effort="100" lower="-0.5760" upper="0.5760" velocity="10.0"/>
     <dynamics damping="0.001" friction="0.001"/>
   </joint>
 
@@ -267,22 +257,9 @@
       <material name="dark_grey"/>
     </visual>
     <collision>
-      <!-- Mirror of right foot: same three-cylinder layout. -->
-      <origin xyz="0.00 0 -0.032" rpy="1.5708 0 0"/>
+      <origin xyz="0.1175 0.1097 -0.020" rpy="0 0 4.71239"/>
       <geometry>
-        <cylinder radius="0.035" length="0.20"/>
-      </geometry>
-    </collision>
-    <collision>
-      <origin xyz="0.07 0 -0.032" rpy="1.5708 0 0"/>
-      <geometry>
-        <cylinder radius="0.035" length="0.20"/>
-      </geometry>
-    </collision>
-    <collision>
-      <origin xyz="0.14 0 -0.032" rpy="1.5708 0 0"/>
-      <geometry>
-        <cylinder radius="0.035" length="0.20"/>
+        <mesh filename="package://pady_robot/meshes/visual/left_foot.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
     <inertial>
@@ -291,7 +268,88 @@
       <inertia ixx="0.000118" ixy="0.0" ixz="0.0" iyy="0.000299" iyz="0.0" izz="0.000391"/>
     </inertial>
   </link>
+  
+ <!-- ═══════════════════════════════════════════════════════════════════════
+       ARM SYSTEM — passive counterswing arms
+       ═══════════════════════════════════════════════════════════════════════
+       Using CAD coordinate conversion:
+       - CAD Y (vertical) → URDF z = -Py/1000
+       - CAD X (lateral) → URDF y = -Px/1000  
+       - CAD Z (sagittal) → URDF x = -Pz/1000
+       
+       Arm mesh centers (CAD): Right X≈-344mm, Left X≈+264mm, Y≈1035mm
+       Hip joint position in URDF: y=±0.108m, z≈-1.0m (relative to base_link)
+       ═══════════════════════════════════════════════════════════════════════ -->
 
+  <!-- arm_joint_right: right hip position -->
+  <joint name="arm_joint_right" type="revolute">
+    <parent link="base_link"/>
+    <child link="arm_right"/>  
+    <origin xyz="0.015 -0.26 0.005" rpy="0 -1.5708 0"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="0" lower="-3.14159" upper="3.14159" velocity="10.0"/>
+    <dynamics damping="0.001" friction="0.001"/>
+  </joint>
+
+  <link name="arm_right">
+    <visual>
+      <!-- axle hole at CAD (-295.94, 1035, -102.68) mm
+           xyz = -R·P/1000 = (0.103, 0.296, -1.035) — puts axle at joint origin -->
+      <origin xyz="-0.005 0.296 -1.035" rpy="1.5708 0 1.5708"/>
+      <geometry>
+        <mesh filename="package://pady_robot/meshes/visual/arm_right.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="grey"/>
+    </visual>
+    <collision>
+      <origin xyz="-0.005 0.296 -1.035" rpy="1.5708 0 1.5708"/>
+      <geometry>
+        <mesh filename="package://pady_robot/meshes/visual/arm_right.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.250"/>
+      <origin xyz="-0.13 0 0" rpy="0 0 0"/>
+      <inertia ixx="3.0e-5" ixy="0.0" ixz="0.0"
+               iyy="3.5e-3" iyz="0.0"
+               izz="3.5e-3"/>
+    </inertial>
+  </link>
+
+  <!-- arm_joint_left: left hip position -->
+  <joint name="arm_joint_left" type="revolute">
+    <parent link="base_link"/>
+    <child link="arm_left"/>
+    <origin xyz="0.015 0.257 0.008" rpy="0 -1.5708 0"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="0" lower="-3.14159" upper="3.14159" velocity="10.0"/>
+    <dynamics damping="0.001" friction="0.001"/>
+  </joint>
+
+  <link name="arm_left">
+    <visual>
+      <!-- axle hole at CAD (216.43, 1035, -102.68) mm
+           xyz = -R·P/1000 = (0.103, -0.216, -1.035) — puts axle at joint origin -->
+      <origin xyz="-0.005 -0.216 -1.035" rpy="1.5708 0 1.5708"/>
+      <geometry>
+        <mesh filename="package://pady_robot/meshes/visual/arm_left.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="grey"/>
+    </visual>
+    <collision>
+      <origin xyz="-0.005 -0.216 -1.035" rpy="1.5708 0 1.5708"/>
+      <geometry>
+        <mesh filename="package://pady_robot/meshes/visual/arm_left.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.250"/>
+      <origin xyz="-0.13 0 0" rpy="0 0 0"/>
+      <inertia ixx="3.0e-5" ixy="0.0" ixz="0.0"
+               iyy="3.5e-3" iyz="0.0"
+               izz="3.5e-3"/>
+    </inertial>
+  </link>
   <!-- ═══════════════════════════════════════════════════════════════
        GAZEBO PROPERTIES
        ═══════════════════════════════════════════════════════════════ -->
@@ -337,12 +395,13 @@
     </plugin>
   </gazebo>
 
-  <!-- High foot friction so feet grip the slope surface -->
+  <!-- Foot contact model.
+       Tune these values here when addressing slip/yaw/contact bounce. -->
   <gazebo reference="foot_right">
-    <!-- very high friction to prevent any yaw-inducing lateral slip -->
+    <!-- Friction coefficients: higher values reduce lateral slip/yaw drift. -->
     <mu1>4.0</mu1>
     <mu2>4.0</mu2>
-    <!-- stiff contact with high damping to lock feet to slope -->
+    <!-- Contact stiffness/damping: higher = stiffer contact, less penetration. -->
     <kp>10000000.0</kp>
     <kd>1000.0</kd>
   </gazebo>
@@ -358,6 +417,18 @@
   <gazebo>
     <plugin filename="gz-sim-joint-state-publisher-system"
             name="gz::sim::systems::JointStatePublisher"/>
+  </gazebo>
+
+  <!-- Publish model world-pose so gait_analyser can read hip position + RPY -->
+  <gazebo>
+    <plugin filename="gz-sim-pose-publisher-system"
+            name="gz::sim::systems::PosePublisher">
+      <publish_model_pose>true</publish_model_pose>
+      <publish_link_pose>false</publish_link_pose>
+      <publish_nested_model_pose>false</publish_nested_model_pose>
+      <use_pose_vector_msg>false</use_pose_vector_msg>
+      <update_frequency>50</update_frequency>
+    </plugin>
   </gazebo>
 
 </robot>

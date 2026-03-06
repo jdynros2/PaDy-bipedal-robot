@@ -1,3 +1,15 @@
+"""spawn_pady.launch.py — Main interactive simulation launch.
+
+Use this launch file for manual tuning in Gazebo + RViz.
+
+Where to adjust parameters
+--------------------------
+- Runtime tuning (CLI): kick/body-force/timing/spawn pose via launch args below.
+- Initial joint offsets: `spawn_robot` `-J` arguments in this file.
+- Contact/friction/cant and joint limits: `urdf/pady.urdf`.
+- Bridge topic mappings: `config/bridge.yaml`.
+"""
+
 import os
 from launch import LaunchDescription
 from launch.actions import ExecuteProcess, DeclareLaunchArgument, TimerAction
@@ -9,12 +21,17 @@ from ament_index_python.packages import get_package_share_directory
 def generate_launch_description():
     with open(os.path.join(get_package_share_directory('pady_robot'), 'urdf', 'pady.urdf'), 'r') as f:
         robot_desc = f.read()
-    
+
     pkg_dir = get_package_share_directory('pady_robot')
     urdf_path = os.path.join(pkg_dir, 'urdf', 'pady.urdf')
-    world_path = os.path.join(pkg_dir, 'worlds', 'slope_3deg.sdf')
 
-    # Convert package:// URIs to file:// for Gazebo mesh loading
+    world_arg = DeclareLaunchArgument(
+        'world',
+        default_value='slope_3deg.sdf',
+        description='World SDF filename inside pady_robot/worlds')
+    world_file = LaunchConfiguration('world')
+
+    # Required so Gazebo can resolve mesh paths when spawning from robot_description.
     robot_desc_gz = robot_desc.replace(
         'package://pady_robot/',
         f'file://{pkg_dir}/'
@@ -25,7 +42,7 @@ def generate_launch_description():
         description='Use simulation time')
     use_sim_time = LaunchConfiguration('use_sim_time')
 
-    # Gait initiation parameters (command-line tunable)
+    # Runtime-tunable parameters (change per run from CLI without editing files).
     kick_torque_arg = DeclareLaunchArgument(
         'kick_torque', default_value='30.0',
         description='Hip kick magnitude (N·m)')
@@ -60,7 +77,7 @@ def generate_launch_description():
         description='Initial forward pitch (rad)')
     spawn_pitch = LaunchConfiguration('spawn_pitch')
 
-    # RViz configuration (launch together with Gazebo)
+    # RViz config can be swapped per run with `rvizconfig:=...`.
     rviz_config_arg = DeclareLaunchArgument(
         'rvizconfig',
         default_value=os.path.join(pkg_dir, 'rviz', 'pady.rviz'),
@@ -68,11 +85,13 @@ def generate_launch_description():
     rviz_config = LaunchConfiguration('rvizconfig')
 
     gazebo = ExecuteProcess(
-        cmd=['gz', 'sim', world_path],
+        cmd=['gz', 'sim', [pkg_dir, '/worlds/', world_file]],
         output='screen'
     )
 
-    # Robot spawn with initial pose
+    # Initial pose and initial joint state.
+    # Edit these `-J` values when changing the robot's starting posture.
+    # Arms are passive; only initial offsets are set here.
     spawn_robot = TimerAction(
         period=5.0,
         actions=[
@@ -85,13 +104,15 @@ def generate_launch_description():
                     '-x',      spawn_x,
                     '-y',      '0',
                     '-z',      '1.42',
-                    '-R',      '-0.2',     
-                    '-P',      spawn_pitch,  # forward lean to initiate fall onto slope
+                    '-R',      '-0.2',
+                    '-P',      spawn_pitch,  # launch arg: initial forward lean
                     '-Y',      '0',
                     '-J', 'hip_joint_right',  '0.55',   # stance: foot 0.56m ahead of hip
                     '-J', 'hip_joint_left',   '-0.50',  # swing: wide back for pendular energy
                     '-J', 'knee_joint_right',  '0.02',  # stance knee: at lower limit, locks on contact
                     '-J', 'knee_joint_left',   '1.05',  # swing knee: 46 mm ground clearance
+                    '-J', 'arm_joint_right',  '-0.50',  # matches left leg start offset
+                    '-J', 'arm_joint_left',    '0.55',  # matches right leg start offset
                 ],
                 output='screen'
             )
@@ -118,16 +139,6 @@ def generate_launch_description():
         output='screen'
     )
 
-    # RViz display window
-    rviz_node = Node(
-        package='rviz2',
-        executable='rviz2',
-        name='rviz2',
-        output='screen',
-        arguments=['-d', rviz_config],
-        parameters=[{'use_sim_time': use_sim_time}],
-    )
-
     unpause = TimerAction(
         period=8.0,
         actions=[
@@ -145,73 +156,84 @@ def generate_launch_description():
         ]
     )
 
-    # Collins-style gait kicks
+    # Hip kick waveform for gait initiation (arms remain passive).
+    # Timing here is the reference schedule used by analysis/headless runs.
     kick_data = [
         TextSubstitution(text='data: '),
         kick_torque,
     ]
 
     kick_left = TimerAction(
-        period=7.5,
-        actions=[ExecuteProcess(
-            cmd=['gz', 'topic', '-t', '/model/pady/joint/hip_joint_left/0/cmd_force',
-                 '-m', 'gz.msgs.Double', '-p', kick_data],
-            output='screen')],
+        period=8.3,
+        actions=[
+            ExecuteProcess(
+                cmd=['gz', 'topic', '-t', '/model/pady/joint/hip_joint_left/0/cmd_force',
+                     '-m', 'gz.msgs.Double', '-p', kick_data],
+                output='screen'),
+        ],
     )
 
     kick_left_stop = TimerAction(
-        period=8.15,
-        actions=[ExecuteProcess(
-            cmd=['gz', 'topic', '-t', '/model/pady/joint/hip_joint_left/0/cmd_force',
-                 '-m', 'gz.msgs.Double', '-p', 'data: 0.0'],
-            output='screen')],
+        period=8.6,
+        actions=[
+            ExecuteProcess(
+                cmd=['gz', 'topic', '-t', '/model/pady/joint/hip_joint_left/0/cmd_force',
+                     '-m', 'gz.msgs.Double', '-p', 'data: 0.0'],
+                output='screen'),
+        ],
     )
 
     kick_right = TimerAction(
-        period=9.0,
+        period=9.8,
         actions=[
             ExecuteProcess(
                 cmd=['gz', 'topic',
                      '-t', '/model/pady/joint/hip_joint_right/0/cmd_force',
                      '-m', 'gz.msgs.Double',
                      '-p', kick_data],
-                output='screen'
-            ),
+                output='screen'),
         ]
     )
 
     kick_right_stop = TimerAction(
-        period=9.15,
-        actions=[ExecuteProcess(
-            cmd=['gz', 'topic', '-t', '/model/pady/joint/hip_joint_right/0/cmd_force',
-                 '-m', 'gz.msgs.Double', '-p', 'data: 0.0'],
-            output='screen')],
+        period=10.1,
+        actions=[
+            ExecuteProcess(
+                cmd=['gz', 'topic', '-t', '/model/pady/joint/hip_joint_right/0/cmd_force',
+                     '-m', 'gz.msgs.Double', '-p', 'data: 0.0'],
+                output='screen'),
+        ],
     )
 
     release = TimerAction(
-        period=10.5,
-        actions=[ExecuteProcess(
-            cmd=['gz', 'topic', '-t', '/model/pady/joint/hip_joint_right/0/cmd_force',
-                 '-m', 'gz.msgs.Double', '-p', 'data: 0.0'],
-            output='screen'),
+        period=12.0,
+        actions=[
             ExecuteProcess(
-            cmd=['gz', 'topic', '-t', '/model/pady/joint/hip_joint_left/0/cmd_force',
-                 '-m', 'gz.msgs.Double', '-p', 'data: 0.0'],
-            output='screen')],
+                cmd=['gz', 'topic', '-t', '/model/pady/joint/hip_joint_right/0/cmd_force',
+                     '-m', 'gz.msgs.Double', '-p', 'data: 0.0'],
+                output='screen'),
+            ExecuteProcess(
+                cmd=['gz', 'topic', '-t', '/model/pady/joint/hip_joint_left/0/cmd_force',
+                     '-m', 'gz.msgs.Double', '-p', 'data: 0.0'],
+                output='screen'),
+        ],
     )
 
-    hip_bias_node = Node(
-        package='pady_robot',
-        executable='continuous_hip_push.py',
-        output='screen',
-        parameters=[{
-            'torque': hip_push_torque,
-            'body_force': body_force,
-            'start_time': hip_push_start_time,
-            'stop_time': hip_push_stop_time,
-            'rate': 50.0,
-            'use_sim_time': use_sim_time,
-        }]
+    hip_bias_node = TimerAction(
+        period=9.0,
+        actions=[Node(
+            package='pady_robot',
+            executable='continuous_hip_push.py',
+            output='screen',
+            parameters=[{
+                'torque': hip_push_torque,
+                'body_force': body_force,
+                'start_time': hip_push_start_time,
+                'stop_time': hip_push_stop_time,
+                'rate': 50.0,
+                'use_sim_time': use_sim_time,
+            }],
+        )],
     )
 
     return LaunchDescription([
@@ -223,17 +245,17 @@ def generate_launch_description():
         body_force_arg,
         spawn_x_arg,
         spawn_pitch_arg,
+        world_arg,
         rviz_config_arg,
         gazebo,
         robot_state_pub,
         joint_state_bridge,
-        rviz_node,
-        spawn_robot,       # T=5.0s:  spawn (paused)
-        kick_left,         # T=7.5s:  left hip kick (magnitude from kick_torque)
-        unpause,           # T=8.0s:  physics starts — left kick fires
-        kick_left_stop,    # T=8.15s: end left kick → 150 ms burst, then passive
-        kick_right,        # T=9.0s:  right hip kick (same magnitude as left)
-        kick_right_stop,   # T=9.15s: end right kick → 150 ms burst, then passive
-        release,           # T=10.5s: safety zero both hips
-        hip_bias_node,     # python node handles persistent torque during swing
+        spawn_robot,       # T=5.0s: spawn while world is paused
+        unpause,           # T=8.0s: physics starts
+        kick_left,         # T=8.3s: start left kick
+        kick_left_stop,    # T=8.6s: stop left kick
+        kick_right,        # T=9.8s: start right kick
+        kick_right_stop,   # T=10.1s: stop right kick
+        release,           # T=12.0s: force both hips to zero torque
+        hip_bias_node,     # publishes continuous hip/base assist within configured window
     ])
