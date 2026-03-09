@@ -145,8 +145,8 @@
   <joint name="foot_joint_right" type="fixed">
     <parent link="shin_right"/>
     <child link="foot_right"/>
-    <!-- Cant -0.13 rad outward + foot pulled back to 10mm to reduce toe drag -->
-    <origin xyz="0.010 0 -0.500" rpy="-0.08 0.0 0.0"/>
+    <!-- Cant outward + foot centred under shin (0mm offset) to avoid toe drag -->
+    <origin xyz="0.0 0 -0.500" rpy="-0.08 0.0 0.0"/>
   </joint>
 
   <link name="foot_right">
@@ -159,25 +159,11 @@
       </geometry>
       <material name="dark_grey"><color rgba="0.3 0.3 0.3 1.0"/></material>
     </visual>
-    <!-- 3 lateral cylinders replacing mesh collision for DART yaw resistance.
-         Heel / mid / toe rollers create 3 ground-contact lines whose
-         sagittal separation (120 mm) generates a real yaw moment arm
-         via differential Coulomb friction. Vertical stagger gives Collins
-         rocker roll-over profile. r=8 mm, length=50 mm (lateral). -->
     <collision>
-      <!-- Heel roller: rearmost, lowest -->
-      <origin xyz="-0.050 0 -0.020" rpy="1.5708 0 0"/>
-      <geometry><cylinder radius="0.008" length="0.050"/></geometry>
-    </collision>
-    <collision>
-      <!-- Mid roller: centre, raised 4 mm (rocker crown) -->
-      <origin xyz="0.010 0 -0.016" rpy="1.5708 0 0"/>
-      <geometry><cylinder radius="0.008" length="0.050"/></geometry>
-    </collision>
-    <collision>
-      <!-- Toe roller: foremost, lowest -->
-      <origin xyz="0.070 0 -0.020" rpy="1.5708 0 0"/>
-      <geometry><cylinder radius="0.008" length="0.050"/></geometry>
+      <origin xyz="0.1175 -0.1085 -0.020" rpy="0 0 4.71239"/>
+      <geometry>
+        <mesh filename="package://pady_robot/meshes/visual/right_foot.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
     </collision>
     <inertial>
       <mass value="0.175"/>
@@ -260,8 +246,8 @@
   <joint name="foot_joint_left" type="fixed">
     <parent link="shin_left"/>
     <child link="foot_left"/>
-    <!-- Cant +0.13 rad outward + foot pulled back to 10mm to reduce toe drag -->
-    <origin xyz="0.010 0 -0.500" rpy="0.08 0.0 0.0"/>
+    <!-- Cant outward + foot centred under shin (0mm offset) to avoid toe drag -->
+    <origin xyz="0.0 0 -0.500" rpy="0.08 0.0 0.0"/>
   </joint>
 
   <link name="foot_left">
@@ -274,21 +260,11 @@
       </geometry>
       <material name="dark_grey"/>
     </visual>
-    <!-- 3 lateral cylinders — mirror of right foot -->
     <collision>
-      <!-- Heel roller -->
-      <origin xyz="-0.050 0 -0.020" rpy="1.5708 0 0"/>
-      <geometry><cylinder radius="0.008" length="0.050"/></geometry>
-    </collision>
-    <collision>
-      <!-- Mid roller (rocker crown, raised 4 mm) -->
-      <origin xyz="0.010 0 -0.016" rpy="1.5708 0 0"/>
-      <geometry><cylinder radius="0.008" length="0.050"/></geometry>
-    </collision>
-    <collision>
-      <!-- Toe roller -->
-      <origin xyz="0.070 0 -0.020" rpy="1.5708 0 0"/>
-      <geometry><cylinder radius="0.008" length="0.050"/></geometry>
+      <origin xyz="0.1175 0.1097 -0.020" rpy="0 0 4.71239"/>
+      <geometry>
+        <mesh filename="package://pady_robot/meshes/visual/left_foot.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
     </collision>
     <inertial>
       <mass value="0.175"/>

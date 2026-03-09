@@ -84,7 +84,7 @@ def generate_launch_description():
     body_force = LaunchConfiguration('body_force')
 
     spawn_x_arg = DeclareLaunchArgument(
-        'spawn_x', default_value='0.45',
+        'spawn_x', default_value='0.40',
         description='Initial x-coordinate')
     spawn_x = LaunchConfiguration('spawn_x')
 
