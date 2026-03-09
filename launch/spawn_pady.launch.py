@@ -23,7 +23,6 @@ def generate_launch_description():
         robot_desc = f.read()
 
     pkg_dir = get_package_share_directory('pady_robot')
-    urdf_path = os.path.join(pkg_dir, 'urdf', 'pady.urdf')
 
     world_arg = DeclareLaunchArgument(
         'world',
@@ -31,7 +30,6 @@ def generate_launch_description():
         description='World SDF filename inside pady_robot/worlds')
     world_file = LaunchConfiguration('world')
 
-    # Required so Gazebo can resolve mesh paths when spawning from robot_description.
     robot_desc_gz = robot_desc.replace(
         'package://pady_robot/',
         f'file://{pkg_dir}/'
@@ -42,11 +40,20 @@ def generate_launch_description():
         description='Use simulation time')
     use_sim_time = LaunchConfiguration('use_sim_time')
 
-    # Runtime-tunable parameters (change per run from CLI without editing files).
     kick_torque_arg = DeclareLaunchArgument(
         'kick_torque', default_value='30.0',
-        description='Hip kick magnitude (N·m)')
+        description='Left-hip kick magnitude (N·m)')
     kick_torque = LaunchConfiguration('kick_torque')
+
+    kick_torque_right_arg = DeclareLaunchArgument(
+        'kick_torque_right', default_value='-30.0',
+        description='Right-hip kick magnitude (N·m), usually opposite sign to left')
+    kick_torque_right = LaunchConfiguration('kick_torque_right')
+
+    kick_follow_torque_arg = DeclareLaunchArgument(
+        'kick_follow_torque', default_value='-18.0',
+        description='Right-hip follow-through torque after initial kick (N·m)')
+    kick_follow_torque = LaunchConfiguration('kick_follow_torque')
 
     hip_push_torque_arg = DeclareLaunchArgument(
         'hip_push_torque', default_value='5.0',
@@ -54,7 +61,7 @@ def generate_launch_description():
     hip_push_torque = LaunchConfiguration('hip_push_torque')
 
     hip_push_start_arg = DeclareLaunchArgument(
-        'hip_push_start_time', default_value='7.0',
+        'hip_push_start_time', default_value='0.8',
         description='Bias start time (s)')
     hip_push_start_time = LaunchConfiguration('hip_push_start_time')
 
@@ -72,12 +79,17 @@ def generate_launch_description():
         'spawn_x', default_value='0.45',
         description='Initial x-coordinate')
     spawn_x = LaunchConfiguration('spawn_x')
+
     spawn_pitch_arg = DeclareLaunchArgument(
         'spawn_pitch', default_value='0.28',
         description='Initial forward pitch (rad)')
     spawn_pitch = LaunchConfiguration('spawn_pitch')
 
-    # RViz config can be swapped per run with `rvizconfig:=...`.
+    spawn_roll_arg = DeclareLaunchArgument(
+        'spawn_roll', default_value='-0.08',
+        description='Initial lateral roll (rad)')
+    spawn_roll = LaunchConfiguration('spawn_roll')
+
     rviz_config_arg = DeclareLaunchArgument(
         'rvizconfig',
         default_value=os.path.join(pkg_dir, 'rviz', 'pady.rviz'),
@@ -89,9 +101,6 @@ def generate_launch_description():
         output='screen'
     )
 
-    # Initial pose and initial joint state.
-    # Edit these `-J` values when changing the robot's starting posture.
-    # Arms are passive; only initial offsets are set here.
     spawn_robot = TimerAction(
         period=5.0,
         actions=[
@@ -100,19 +109,19 @@ def generate_launch_description():
                 executable='create',
                 arguments=[
                     '-string', robot_desc_gz,
-                    '-name',   'pady',
-                    '-x',      spawn_x,
-                    '-y',      '0',
-                    '-z',      '1.42',
-                    '-R',      '-0.2',
-                    '-P',      spawn_pitch,  # launch arg: initial forward lean
-                    '-Y',      '0',
-                    '-J', 'hip_joint_right',  '0.55',   # stance: foot 0.56m ahead of hip
-                    '-J', 'hip_joint_left',   '-0.50',  # swing: wide back for pendular energy
-                    '-J', 'knee_joint_right',  '0.02',  # stance knee: at lower limit, locks on contact
-                    '-J', 'knee_joint_left',   '1.05',  # swing knee: 46 mm ground clearance
-                    '-J', 'arm_joint_right',  '-0.50',  # matches left leg start offset
-                    '-J', 'arm_joint_left',    '0.55',  # matches right leg start offset
+                    '-name', 'pady',
+                    '-x', spawn_x,
+                    '-y', '0',
+                    '-z', '1.45',
+                    '-R', spawn_roll,
+                    '-P', spawn_pitch,
+                    '-Y', '0',
+                    '-J', 'hip_joint_right', '0.45',
+                    '-J', 'hip_joint_left', '-0.42',
+                    '-J', 'knee_joint_right', '0.02',
+                    '-J', 'knee_joint_left', '1.05',
+                    '-J', 'arm_joint_right', '-0.50',
+                    '-J', 'arm_joint_left', '0.55',
                 ],
                 output='screen'
             )
@@ -156,53 +165,48 @@ def generate_launch_description():
         ]
     )
 
-    # Hip kick waveform for gait initiation (arms remain passive).
-    # Timing here is the reference schedule used by analysis/headless runs.
-    kick_data = [
-        TextSubstitution(text='data: '),
-        kick_torque,
-    ]
-
-    kick_left = TimerAction(
-        period=8.3,
-        actions=[
-            ExecuteProcess(
-                cmd=['gz', 'topic', '-t', '/model/pady/joint/hip_joint_left/0/cmd_force',
-                     '-m', 'gz.msgs.Double', '-p', kick_data],
-                output='screen'),
-        ],
-    )
-
-    kick_left_stop = TimerAction(
-        period=8.6,
-        actions=[
-            ExecuteProcess(
-                cmd=['gz', 'topic', '-t', '/model/pady/joint/hip_joint_left/0/cmd_force',
-                     '-m', 'gz.msgs.Double', '-p', 'data: 0.0'],
-                output='screen'),
-        ],
-    )
+    kick_data_left = [TextSubstitution(text='data: '), kick_torque]
+    kick_data_right = [TextSubstitution(text='data: '), kick_torque_right]
+    right_follow_data = [TextSubstitution(text='data: '), kick_follow_torque]
 
     kick_right = TimerAction(
-        period=9.8,
-        actions=[
-            ExecuteProcess(
-                cmd=['gz', 'topic',
-                     '-t', '/model/pady/joint/hip_joint_right/0/cmd_force',
-                     '-m', 'gz.msgs.Double',
-                     '-p', kick_data],
-                output='screen'),
-        ]
+        period=8.25,
+        actions=[ExecuteProcess(
+            cmd=['gz', 'topic', '-t', '/model/pady/joint/hip_joint_right/0/cmd_force',
+                 '-m', 'gz.msgs.Double', '-p', kick_data_right],
+            output='screen')]
     )
 
     kick_right_stop = TimerAction(
-        period=10.1,
-        actions=[
-            ExecuteProcess(
-                cmd=['gz', 'topic', '-t', '/model/pady/joint/hip_joint_right/0/cmd_force',
-                     '-m', 'gz.msgs.Double', '-p', 'data: 0.0'],
-                output='screen'),
-        ],
+        period=8.75,
+        actions=[ExecuteProcess(
+            cmd=['gz', 'topic', '-t', '/model/pady/joint/hip_joint_right/0/cmd_force',
+                 '-m', 'gz.msgs.Double', '-p', 'data: 0.0'],
+            output='screen')]
+    )
+
+    kick_right_follow = TimerAction(
+        period=8.80,
+        actions=[ExecuteProcess(
+            cmd=['gz', 'topic', '-t', '/model/pady/joint/hip_joint_right/0/cmd_force',
+                 '-m', 'gz.msgs.Double', '-p', right_follow_data],
+            output='screen')]
+    )
+
+    kick_left = TimerAction(
+        period=9.10,
+        actions=[ExecuteProcess(
+            cmd=['gz', 'topic', '-t', '/model/pady/joint/hip_joint_left/0/cmd_force',
+                 '-m', 'gz.msgs.Double', '-p', kick_data_left],
+            output='screen')]
+    )
+
+    kick_left_stop = TimerAction(
+        period=9.60,
+        actions=[ExecuteProcess(
+            cmd=['gz', 'topic', '-t', '/model/pady/joint/hip_joint_left/0/cmd_force',
+                 '-m', 'gz.msgs.Double', '-p', 'data: 0.0'],
+            output='screen')]
     )
 
     release = TimerAction(
@@ -239,23 +243,27 @@ def generate_launch_description():
     return LaunchDescription([
         use_sim_time_arg,
         kick_torque_arg,
+        kick_torque_right_arg,
+        kick_follow_torque_arg,
         hip_push_torque_arg,
         hip_push_start_arg,
         hip_push_stop_arg,
         body_force_arg,
         spawn_x_arg,
         spawn_pitch_arg,
+        spawn_roll_arg,
         world_arg,
         rviz_config_arg,
         gazebo,
         robot_state_pub,
         joint_state_bridge,
-        spawn_robot,       # T=5.0s: spawn while world is paused
-        unpause,           # T=8.0s: physics starts
-        kick_left,         # T=8.3s: start left kick
-        kick_left_stop,    # T=8.6s: stop left kick
-        kick_right,        # T=9.8s: start right kick
-        kick_right_stop,   # T=10.1s: stop right kick
-        release,           # T=12.0s: force both hips to zero torque
-        hip_bias_node,     # publishes continuous hip/base assist within configured window
+        spawn_robot,
+        unpause,
+        kick_right,
+        kick_right_stop,
+        kick_right_follow,
+        kick_left,
+        kick_left_stop,
+        release,
+        hip_bias_node,
     ])

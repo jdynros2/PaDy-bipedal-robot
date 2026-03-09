@@ -53,13 +53,19 @@ def generate_launch_description():
     kick_torque_arg = DeclareLaunchArgument('kick_torque', default_value='30.0',
                                             description='Hip kick magnitude (N·m)')
     kick_torque = LaunchConfiguration('kick_torque')
+    kick_torque_right_arg = DeclareLaunchArgument('kick_torque_right', default_value='-30.0',
+                                                  description='Right-hip initial kick torque (N·m), usually opposite sign to left')
+    kick_torque_right = LaunchConfiguration('kick_torque_right')
+    kick_follow_torque_arg = DeclareLaunchArgument('kick_follow_torque', default_value='-18.0',
+                                                   description='Right-hip follow-through torque after initial kick (N·m)')
+    kick_follow_torque = LaunchConfiguration('kick_follow_torque')
 
     hip_push_torque_arg = DeclareLaunchArgument('hip_push_torque', default_value='5.0',
                                                 description='Hip bias torque (N·m)')
     hip_push_torque = LaunchConfiguration('hip_push_torque')
 
     hip_push_start_arg = DeclareLaunchArgument(
-        'hip_push_start_time', default_value='7.0',
+        'hip_push_start_time', default_value='0.8',
         description='Bias start time (s)')
     hip_push_start_time = LaunchConfiguration('hip_push_start_time')
 
@@ -81,6 +87,9 @@ def generate_launch_description():
     spawn_pitch_arg = DeclareLaunchArgument('spawn_pitch', default_value='0.275',
                                             description='Initial forward pitch (rad)')
     spawn_pitch = LaunchConfiguration('spawn_pitch')
+    spawn_roll_arg = DeclareLaunchArgument('spawn_roll', default_value='-0.08',
+                                           description='Initial lateral roll (rad)')
+    spawn_roll = LaunchConfiguration('spawn_roll')
 
     # ── Gazebo server-only mode (faster for sweeps) ──────────────────────────
     gazebo = ExecuteProcess(
@@ -98,12 +107,12 @@ def generate_launch_description():
                 '-name',   'pady',
                 '-x',      spawn_x,
                 '-y',      '0',
-                '-z',      '1.42',
-                '-R',      '-0.2',
+                '-z',      '1.45',
+                '-R',      spawn_roll,
                 '-P',      spawn_pitch,
                 '-Y',      '0',
-                '-J', 'hip_joint_right',  '0.55',
-                '-J', 'hip_joint_left',   '-0.50',
+                '-J', 'hip_joint_right',  '0.45',
+                '-J', 'hip_joint_left',   '-0.42',
                 '-J', 'knee_joint_right',  '0.02',
                 '-J', 'knee_joint_left',   '1.05',
                 '-J', 'arm_joint_right',  '-0.50',
@@ -146,23 +155,31 @@ def generate_launch_description():
     )
 
     # Kick schedule must match spawn launch for apples-to-apples metrics.
-    kick_data = [TextSubstitution(text='data: '), kick_torque]
+    kick_data_left = [TextSubstitution(text='data: '), kick_torque]
+    kick_data_right = [TextSubstitution(text='data: '), kick_torque_right]
 
-    kick_left = TimerAction(period=8.3, actions=[ExecuteProcess(
+    kick_right = TimerAction(period=8.25, actions=[ExecuteProcess(
+        cmd=['gz', 'topic', '-t', '/model/pady/joint/hip_joint_right/0/cmd_force',
+             '-m', 'gz.msgs.Double', '-p', kick_data_right], output='screen')])
+
+    kick_right_stop = TimerAction(period=8.75, actions=[ExecuteProcess(
+        cmd=['gz', 'topic', '-t', '/model/pady/joint/hip_joint_right/0/cmd_force',
+             '-m', 'gz.msgs.Double', '-p', 'data: 0.0'], output='screen')])
+    
+
+    kick_left = TimerAction(period=9.10, actions=[ExecuteProcess(
         cmd=['gz', 'topic', '-t', '/model/pady/joint/hip_joint_left/0/cmd_force',
-             '-m', 'gz.msgs.Double', '-p', kick_data], output='screen')])
+             '-m', 'gz.msgs.Double', '-p', kick_data_left], output='screen')])
 
-    kick_left_stop = TimerAction(period=8.6, actions=[ExecuteProcess(
+    kick_left_stop = TimerAction(period=9.60, actions=[ExecuteProcess(
         cmd=['gz', 'topic', '-t', '/model/pady/joint/hip_joint_left/0/cmd_force',
              '-m', 'gz.msgs.Double', '-p', 'data: 0.0'], output='screen')])
 
-    kick_right = TimerAction(period=9.8, actions=[ExecuteProcess(
-        cmd=['gz', 'topic', '-t', '/model/pady/joint/hip_joint_right/0/cmd_force',
-             '-m', 'gz.msgs.Double', '-p', kick_data], output='screen')])
+    right_follow_data = [TextSubstitution(text='data: '), kick_follow_torque]
 
-    kick_right_stop = TimerAction(period=10.1, actions=[ExecuteProcess(
+    kick_right_follow = TimerAction(period=8.80, actions=[ExecuteProcess(
         cmd=['gz', 'topic', '-t', '/model/pady/joint/hip_joint_right/0/cmd_force',
-             '-m', 'gz.msgs.Double', '-p', 'data: 0.0'], output='screen')])
+             '-m', 'gz.msgs.Double', '-p', right_follow_data], output='screen')])
 
     release = TimerAction(period=12.0, actions=[
         ExecuteProcess(cmd=['gz', 'topic', '-t', '/model/pady/joint/hip_joint_right/0/cmd_force',
@@ -201,19 +218,20 @@ def generate_launch_description():
 
     return LaunchDescription([
         use_sim_time_arg,
-        kick_torque_arg, hip_push_torque_arg,
+        kick_torque_arg, kick_torque_right_arg, kick_follow_torque_arg, hip_push_torque_arg,
         hip_push_start_arg, hip_push_stop_arg,
-        body_force_arg, spawn_x_arg, spawn_pitch_arg,
+        body_force_arg, spawn_x_arg, spawn_pitch_arg, spawn_roll_arg,
         world_arg,
         gazebo,
         robot_state_pub,
         joint_state_bridge,
         spawn_robot,
         unpause,
-        kick_left,
-        kick_left_stop,
         kick_right,
         kick_right_stop,
+        kick_right_follow,
+        kick_left,
+        kick_left_stop,
         release,
         hip_bias_node,
         analyser_node,
