@@ -22,6 +22,7 @@ install(DIRECTORY
 install(PROGRAMS
   scripts/continuous_hip_push.py
   scripts/gait_analyser.py
+  scripts/knee_lock.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

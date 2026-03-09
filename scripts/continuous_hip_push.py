@@ -51,25 +51,31 @@ class ContinuousHipPush(Node):
         self.right_pub = self.create_publisher(Float64, ns('/hip_kick_right'), 10)
         self.body_pub = self.create_publisher(Float64, ns('/base_push'), 10)
 
+        self._t0 = self.get_clock().now().nanoseconds / 1e9
+
         self.timer = self.create_timer(1.0 / rate, self.publish_torque)
         self.get_logger().info(
-            f"continuous_hip_push: hip={self.torque}Nm "
+            f"continuous_hip_push: left={self.torque}Nm, right={-self.torque}Nm "
             f"from {self.start_time}s to {self.stop_time}s"
         )
 
     def publish_torque(self):
         now = self.get_clock().now().nanoseconds / 1e9
-        msg = Float64()
+        elapsed = now - self._t0
+        left_msg = Float64()
+        right_msg = Float64()
 
-        if self.start_time <= now < self.stop_time:
-            msg.data = self.torque
+        if self.start_time <= elapsed < self.stop_time:
+            left_msg.data = self.torque
+            right_msg.data = -self.torque
             body_msg = Float64(data=self.body_force)
         else:
-            msg.data = 0.0
+            left_msg.data = 0.0
+            right_msg.data = 0.0
             body_msg = Float64(data=0.0)
 
-        self.left_pub.publish(msg)
-        self.right_pub.publish(msg)
+        self.left_pub.publish(left_msg)
+        self.right_pub.publish(right_msg)
         self.body_pub.publish(body_msg)
 
 
