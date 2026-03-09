@@ -46,9 +46,9 @@
           <surface>
             <friction>
               <ode>
-                <!-- Moderate friction for passive walking -->
-                <mu>0.4</mu>
-                <mu2>0.4</mu2>
+                <!-- High friction for passive walking (must match or exceed foot mu) -->
+                <mu>70.0</mu>
+                <mu2>70.0</mu2>
               </ode>
             </friction>
             <contact>
@@ -93,8 +93,8 @@
           <surface>
             <friction>
               <ode>
-                <mu>0.4</mu>
-                <mu2>0.4</mu2>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
               </ode>
             </friction>
           </surface>

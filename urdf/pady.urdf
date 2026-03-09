@@ -67,9 +67,9 @@
   <joint name="hip_joint_right" type="revolute">
     <parent link="base_link"/>
     <child link="thigh_right"/>
-    <origin xyz="0 -0.10786 -0.017" rpy="0 0.1 0"/>
+    <origin xyz="0 -0.10786 -0.017" rpy="0 0.28 0"/>
     <axis xyz="0 1 0"/>
-    <limit effort="400" lower="-0.349066" upper="0.349066" velocity="10.0"/>
+    <limit effort="400" lower="-0.5418" upper="0.0418" velocity="10.0"/>
     <dynamics damping="0.001" friction="0.001"/>
   </joint>
 
@@ -90,7 +90,7 @@
     </collision>
     <inertial>
       <mass value="0.437"/>
-      <origin xyz="0 0 -0.0475" rpy="0 0 0"/>
+      <origin xyz="0 0 -0.25" rpy="0 0 0"/>
       <inertia ixx="0.009162" ixy="0.0" ixz="0.0" iyy="0.009162" iyz="0.0" izz="0.000058"/>
     </inertial>
   </link>
@@ -110,8 +110,8 @@
     <child link="shin_right"/>
     <origin xyz="0 0 -0.500" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
-    <limit effort="0" lower="0.0" upper="1.1345" velocity="10.0"/>
-    <!-- no damping: knee behaves as ideal hinge, inertia alone governs swing -->
+    <limit effort="100" lower="0.0" upper="1.1345" velocity="10.0"/>
+    <!-- damping near-zero: knee swings freely; locking is done by knee_lock node -->
     <dynamics damping="0.0" friction="0.0001"/>
   </joint>
 
@@ -132,7 +132,7 @@
     </collision>
     <inertial>
       <mass value="0.350"/>
-      <origin xyz="0 0 -0.032" rpy="0 0 0"/>
+      <origin xyz="0 0 -0.25" rpy="0 0 0"/>
       <inertia ixx="0.007338" ixy="0.0" ixz="0.0" iyy="0.007338" iyz="0.0" izz="0.000047"/>
     </inertial>
   </link>
@@ -145,7 +145,8 @@
   <joint name="foot_joint_right" type="fixed">
     <parent link="shin_right"/>
     <child link="foot_right"/>
-    <origin xyz="0.020 0 -0.500" rpy="-0.1 0.0 0.0"/>
+    <!-- Cant outward + foot centred under shin (0mm offset) to avoid toe drag -->
+    <origin xyz="0.0 0 -0.500" rpy="-0.08 0.0 0.0"/>
   </joint>
 
   <link name="foot_right">
@@ -179,9 +180,9 @@
   <joint name="hip_joint_left" type="revolute">
     <parent link="base_link"/>
     <child link="thigh_left"/>
-    <origin xyz="0 0.10786 -0.017" rpy="0 -0.1 0"/>
+    <origin xyz="0 0.10786 -0.017" rpy="0 -0.28 0"/>
     <axis xyz="0 1 0"/>
-    <limit effort="400" lower="-0.349066" upper="0.349066" velocity="10.0"/>
+    <limit effort="400" lower="-0.0418" upper="0.5418" velocity="10.0"/>
     <dynamics damping="0.001" friction="0.001"/>
   </joint>
 
@@ -202,7 +203,7 @@
     </collision>
     <inertial>
       <mass value="0.437"/>
-      <origin xyz="0 0 -0.0475" rpy="0 0 0"/>
+      <origin xyz="0 0 -0.25" rpy="0 0 0"/>
       <inertia ixx="0.009162" ixy="0.0" ixz="0.0" iyy="0.009162" iyz="0.0" izz="0.000058"/>
     </inertial>
   </link>
@@ -214,7 +215,8 @@
     <child link="shin_left"/>
     <origin xyz="0 0 -0.500" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
-    <limit effort="0" lower="0.0" upper="1.1345" velocity="10.0"/>
+    <limit effort="100" lower="0.0" upper="1.1345" velocity="10.0"/>
+    <!-- damping near-zero: knee swings freely; locking is done by knee_lock node -->
     <dynamics damping="0.0" friction="0.0001"/>
   </joint>
 
@@ -235,16 +237,17 @@
     </collision>
     <inertial>
       <mass value="0.350"/>
-      <origin xyz="0 0 -0.032" rpy="0 0 0"/>
+      <origin xyz="0 0 -0.25" rpy="0 0 0"/>
       <inertia ixx="0.007338" ixy="0.0" ixz="0.0" iyy="0.007338" iyz="0.0" izz="0.000047"/>
     </inertial>
   </link>
 
-  <!-- Foot Joint Left – mirror cant of right: +0.20 rad toward +Y (outer side) -->
+  <!-- Foot Joint Left – mirror cant of right: +0.13 rad toward +Y (outer side) -->
   <joint name="foot_joint_left" type="fixed">
     <parent link="shin_left"/>
     <child link="foot_left"/>
-    <origin xyz="0.020 0 -0.500" rpy="0.1 0.0 0.0"/>
+    <!-- Cant outward + foot centred under shin (0mm offset) to avoid toe drag -->
+    <origin xyz="0.0 0 -0.500" rpy="0.08 0.0 0.0"/>
   </joint>
 
   <link name="foot_left">
@@ -286,10 +289,11 @@
   <joint name="arm_joint_right" type="revolute">
     <parent link="base_link"/>
     <child link="arm_right"/>  
-    <origin xyz="0.015 -0.2585 0.0065" rpy="0 -1.5708 0"/>
+    <origin xyz="0.015 -0.2585 0.0065" rpy="0 -2.4508 0"/>
     <axis xyz="0 1 0"/>
-    <limit effort="0" lower="-1.25" upper="1.25" velocity="8.0"/>
-    <dynamics damping="0.02" friction="0.0001"/>
+    <limit effort="0" lower="-0.97" upper="1.53" velocity="8.0"/>
+    <!-- Higher damping generates counter-yaw torque as arms resist body rotation -->
+    <dynamics damping="0.2" friction="0.0001"/>
   </joint>
 
   <link name="arm_right">
@@ -321,10 +325,11 @@
   <joint name="arm_joint_left" type="revolute">
     <parent link="base_link"/>
     <child link="arm_left"/>
-    <origin xyz="0.015 0.2585 0.0065" rpy="0 -1.5708 0"/>
+    <origin xyz="0.015 0.2585 0.0065" rpy="0 -0.6908 0"/>
     <axis xyz="0 1 0"/>
-    <limit effort="0" lower="-1.25" upper="1.25" velocity="8.0"/>
-    <dynamics damping="0.02" friction="0.0001"/>
+    <limit effort="0" lower="-1.53" upper="0.97" velocity="8.0"/>
+    <!-- Higher damping generates counter-yaw torque as arms resist body rotation -->
+    <dynamics damping="0.2" friction="0.0001"/>
   </joint>
 
   <link name="arm_left">
@@ -376,6 +381,20 @@
       <topic>/model/pady/joint/hip_joint_left/0/cmd_force</topic>
     </plugin>
   </gazebo>
+  <gazebo>
+    <plugin filename="gz-sim-apply-joint-force-system"
+            name="gz::sim::systems::ApplyJointForce">
+      <joint_name>knee_joint_right</joint_name>
+      <topic>/model/pady/joint/knee_joint_right/0/cmd_force</topic>
+    </plugin>
+  </gazebo>
+  <gazebo>
+    <plugin filename="gz-sim-apply-joint-force-system"
+            name="gz::sim::systems::ApplyJointForce">
+      <joint_name>knee_joint_left</joint_name>
+      <topic>/model/pady/joint/knee_joint_left/0/cmd_force</topic>
+    </plugin>
+  </gazebo>
 
   <!-- optional body force plugin: world-level attachment so the system
        has access to the world context.  We attempt both ApplyLinkForce and
@@ -400,18 +419,22 @@
        Tune these values here when addressing slip/yaw/contact bounce. -->
   <gazebo reference="foot_right">
     <!-- Friction coefficients: higher values reduce lateral slip/yaw drift. -->
-    <mu1>4.0</mu1>
-    <mu2>4.0</mu2>
-    <!-- Contact stiffness/damping: higher = stiffer contact, less penetration. -->
-    <kp>10000000.0</kp>
-    <kd>1000.0</kd>
+    <mu1>70.0</mu1>
+    <mu2>70.0</mu2>
+    <!-- Rubber-like contact: softer spring with higher damping to absorb impact. -->
+    <kp>2500000.0</kp>
+    <kd>18000.0</kd>
+    <max_vel>0.05</max_vel>
+    <min_depth>0.002</min_depth>
   </gazebo>
 
   <gazebo reference="foot_left">
-    <mu1>4.0</mu1>
-    <mu2>4.0</mu2>
-    <kp>10000000.0</kp>
-    <kd>1000.0</kd>
+    <mu1>70.0</mu1>
+    <mu2>70.0</mu2>
+    <kp>2500000.0</kp>
+    <kd>18000.0</kd>
+    <max_vel>0.05</max_vel>
+    <min_depth>0.002</min_depth>
   </gazebo>
 
   <!-- Joint state publisher so Gazebo publishes joint angles to ROS -->
