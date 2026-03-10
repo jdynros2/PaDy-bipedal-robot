@@ -285,7 +285,10 @@
        Hip joint position in URDF: y=±0.108m, z≈-1.0m (relative to base_link)
        ═══════════════════════════════════════════════════════════════════════ -->
 
-  <!-- arm_joint_right: right hip position -->
+  <!-- arm_joint_right: right hip position
+       Joint RPY is pure Ry rotation to keep axis Y (lateral) → sagittal swing.
+       Contralateral asymmetry: right arm pitched -140° (forward-down),
+       left arm pitched -40° (backward-up) for counter-swing launch posture. -->
   <joint name="arm_joint_right" type="revolute">
     <parent link="base_link"/>
     <child link="arm_right"/>  
@@ -298,26 +301,23 @@
 
   <link name="arm_right">
     <visual>
-      <!-- axle hole at CAD (-295.94, 1035, -102.68) mm
-           xyz = -R·P/1000 = (0.103, 0.296, -1.035) — puts axle at joint origin -->
-      <origin xyz="-0.005 0.296 -1.035" rpy="1.5708 0 1.5708"/>
+      <!-- New STL in local coords: axle hole at ~(0,3,280) mm.
+           Standard CAD map rpy="1.5708 0 1.5708": STL(x,y,z)→joint(z,x,y)
+           xyz = -R·P_axle = -(0.280, 0, 0.003) -->
+      <origin xyz="-0.280 0 -0.003" rpy="1.5708 0 1.5708"/>
       <geometry>
         <mesh filename="package://pady_robot/meshes/visual/arm_right.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="grey"/>
     </visual>
-    <collision>
-      <origin xyz="-0.005 0.296 -1.035" rpy="1.5708 0 1.5708"/>
-      <geometry>
-        <mesh filename="package://pady_robot/meshes/visual/arm_right.stl" scale="0.001 0.001 0.001"/>
-      </geometry>
-    </collision>
+    <!-- No collision: new local-coord STLs extend from joint and
+         would interpenetrate base_link, jamming the joint. -->
     <inertial>
       <mass value="0.250"/>
-      <origin xyz="-0.160 0 0" rpy="0 0 0"/>
-      <inertia ixx="5.0e-5" ixy="0.0" ixz="0.0"
-               iyy="5.2e-3" iyz="0.0"
-               izz="5.2e-3"/>
+      <origin xyz="-0.140 0 0" rpy="0 0 0"/>
+      <inertia ixx="3.7e-5" ixy="0.0" ixz="0.0"
+               iyy="1.64e-3" iyz="0.0"
+               izz="1.67e-3"/>
     </inertial>
   </link>
 
@@ -334,26 +334,23 @@
 
   <link name="arm_left">
     <visual>
-      <!-- axle hole at CAD (216.43, 1035, -102.68) mm
-           xyz = -R·P/1000 = (0.103, -0.216, -1.035) — puts axle at joint origin -->
-      <origin xyz="-0.005 -0.216 -1.035" rpy="1.5708 0 1.5708"/>
+      <!-- Left STL body extends z=-280→+70 (opposite of right).
+           Flip Rz: rpy="1.5708 0 -1.5708" so STL -z→+URDF x, making
+           the body extend in -x (same as right arm child frame).
+           Axle at STL(0,3,-280)→URDF(280,0,3)→offset (-0.280,0,-0.003) -->
+      <origin xyz="-0.280 0 -0.003" rpy="1.5708 0 -1.5708"/>
       <geometry>
         <mesh filename="package://pady_robot/meshes/visual/arm_left.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="grey"/>
     </visual>
-    <collision>
-      <origin xyz="-0.005 -0.216 -1.035" rpy="1.5708 0 1.5708"/>
-      <geometry>
-        <mesh filename="package://pady_robot/meshes/visual/arm_left.stl" scale="0.001 0.001 0.001"/>
-      </geometry>
-    </collision>
+    <!-- No collision: same as right arm -->
     <inertial>
       <mass value="0.250"/>
-      <origin xyz="-0.160 0 0" rpy="0 0 0"/>
-      <inertia ixx="5.0e-5" ixy="0.0" ixz="0.0"
-               iyy="5.2e-3" iyz="0.0"
-               izz="5.2e-3"/>
+      <origin xyz="-0.140 0 0" rpy="0 0 0"/>
+      <inertia ixx="3.7e-5" ixy="0.0" ixz="0.0"
+               iyy="1.64e-3" iyz="0.0"
+               izz="1.67e-3"/>
     </inertial>
   </link>
   <!-- ═══════════════════════════════════════════════════════════════

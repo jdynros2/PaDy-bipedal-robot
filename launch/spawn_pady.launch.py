@@ -123,7 +123,7 @@ def generate_launch_description():
                     '-z', '1.45',
                     '-R', spawn_roll,
                     '-P', spawn_pitch,
-                    '-Y', '0',
+                    '-Y', '-0.01',
                 ],
                 output='screen'
             )
