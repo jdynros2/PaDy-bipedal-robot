@@ -27,7 +27,11 @@ cd ~/ros2_ws
 colcon build --packages-select pady_robot
 source install/setup.bash
 
-# Interactive simulation (Gazebo + RViz)
+# Best run parameters I found
+ros2 launch pady_robot analysis.launch.py   kick_torque:=0.2   kick_torque_right:=-0.2   kick_follow_torque:=0   body_force:=0   hip_push_torque:=0   hip_push_start_time:=0   hip_push_stop_time:=12.0   spawn_x:=0.34   spawn_pitch:=0.42   spawn_roll:=-0.2385   spawn_yaw:=0.1
+
+
+# Interactive simulation (Gazebo)
 ros2 launch pady_robot spawn_pady.launch.py
 
 # Data collection run (adds gait_analyser + rosbag)
