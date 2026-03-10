@@ -37,10 +37,10 @@ def generate_launch_description():
 
     # ── pass-through tuning args (edit defaults here or override on CLI) ────
     kick_torque_arg = DeclareLaunchArgument(
-        'kick_torque', default_value='15.0',
+        'kick_torque', default_value='8.0',
         description='Hip kick magnitude (N·m)')
     kick_torque_right_arg = DeclareLaunchArgument(
-        'kick_torque_right', default_value='-15.0',
+        'kick_torque_right', default_value='-8.0',
         description='Right-hip initial kick torque (N·m), usually opposite sign to left')
     kick_follow_torque_arg = DeclareLaunchArgument(
         'kick_follow_torque', default_value='0.0',
@@ -49,13 +49,13 @@ def generate_launch_description():
         'hip_push_torque', default_value='3.0',
         description='Hip bias torque (N·m)')
     hip_push_start_arg = DeclareLaunchArgument(
-        'hip_push_start_time', default_value='0.0',
-        description='Bias start time (s)')
+        'hip_push_start_time', default_value='1.0',
+        description='Bias start time (s) — delay avoids yaw torque during first step')
     hip_push_stop_arg = DeclareLaunchArgument(
         'hip_push_stop_time', default_value='12.0',
         description='Bias end time (s)')
     body_force_arg = DeclareLaunchArgument(
-        'body_force', default_value='5.0',
+        'body_force', default_value='7.0',
         description='Forward force on base link (N)')
     spawn_x_arg = DeclareLaunchArgument(
         'spawn_x', default_value='0.40',
@@ -66,6 +66,9 @@ def generate_launch_description():
     spawn_roll_arg = DeclareLaunchArgument(
         'spawn_roll', default_value='-0.06',
         description='Initial lateral roll (rad)')
+    spawn_yaw_arg = DeclareLaunchArgument(
+        'spawn_yaw', default_value='0.0',
+        description='Initial yaw (rad). Non-zero yaw causes body-force to push off-axis → yaw drift')
     world_arg = DeclareLaunchArgument(
         'world', default_value='slope_3deg.sdf',
         description='World SDF filename inside pady_robot/worlds')
@@ -93,6 +96,7 @@ def generate_launch_description():
             'spawn_x':              LaunchConfiguration('spawn_x'),
             'spawn_pitch':          LaunchConfiguration('spawn_pitch'),
             'spawn_roll':           LaunchConfiguration('spawn_roll'),
+            'spawn_yaw':            LaunchConfiguration('spawn_yaw'),
             'world':                LaunchConfiguration('world'),
             'use_sim_time':         LaunchConfiguration('use_sim_time'),
         }.items(),
@@ -155,6 +159,7 @@ def generate_launch_description():
         spawn_x_arg,
         spawn_pitch_arg,
         spawn_roll_arg,
+        spawn_yaw_arg,
         world_arg,
         sim_launch,
         analyser_node,

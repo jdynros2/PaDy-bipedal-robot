@@ -277,12 +277,12 @@ def compute_metrics(rows: list[dict]) -> Metrics:
 
 def clamp_params(params: Params) -> Params:
     return Params(
-        kick_torque=max(20.0, min(48.0, params.kick_torque)),
-        hip_push_torque=max(3.0, min(18.0, params.hip_push_torque)),
-        hip_push_stop_time=max(11.0, min(14.5, params.hip_push_stop_time)),
+        kick_torque=max(0.0, min(2.0, params.kick_torque)),
+        hip_push_torque=max(0.0, min(2.0, params.hip_push_torque)),
+        hip_push_stop_time=max(0.0, min(20.0, params.hip_push_stop_time)),
         body_force=max(0.0, min(8.0, params.body_force)),
-        spawn_pitch=max(0.24, min(0.33, params.spawn_pitch)),
-        spawn_roll=max(-0.18, min(0.02, params.spawn_roll)),
+        spawn_pitch=max(0.24, min(0.44, params.spawn_pitch)),
+        spawn_roll=max(-0.26, min(0.02, params.spawn_roll)),
     )
 
 
@@ -418,6 +418,10 @@ def main():
                         help='Initial spawn pitch (rad)')
     parser.add_argument('--spawn-roll', type=float, default=-0.09,
                         help='Initial spawn roll (rad)')
+    parser.add_argument('--arm-mass', type=float, default=0.3, help='Arm mass (kg)')
+    parser.add_argument('--arm-com', type=float, default=-0.14, help='Arm COM (m)')
+    parser.add_argument('--spawn-yaw', type=float, default=0.1, help='Initial spawn yaw (rad)')
+    parser.add_argument('--spawn-y', type=float, default=0.3, help='Initial spawn y-coordinate')
     args = parser.parse_args()
 
     runs = max(1, int(args.runs))

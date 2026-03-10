@@ -49,12 +49,12 @@ def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time')
 
     kick_torque_arg = DeclareLaunchArgument(
-        'kick_torque', default_value='15.0',
+        'kick_torque', default_value='8.0',
         description='Left-hip kick magnitude (N·m, positive = swing leg forward)')
     kick_torque = LaunchConfiguration('kick_torque')
 
     kick_torque_right_arg = DeclareLaunchArgument(
-        'kick_torque_right', default_value='-15.0',
+        'kick_torque_right', default_value='-8.0',
         description='Right-hip kick magnitude (N·m, negative = body forward over stance foot)')
     kick_torque_right = LaunchConfiguration('kick_torque_right')
 
@@ -69,8 +69,8 @@ def generate_launch_description():
     hip_push_torque = LaunchConfiguration('hip_push_torque')
 
     hip_push_start_arg = DeclareLaunchArgument(
-        'hip_push_start_time', default_value='0.0',
-        description='Bias start time (s)')
+        'hip_push_start_time', default_value='1.0',
+        description='Bias start time (s) — delay avoids yaw torque during first step')
     hip_push_start_time = LaunchConfiguration('hip_push_start_time')
 
     hip_push_stop_arg = DeclareLaunchArgument(
@@ -79,7 +79,7 @@ def generate_launch_description():
     hip_push_stop_time = LaunchConfiguration('hip_push_stop_time')
 
     body_force_arg = DeclareLaunchArgument(
-        'body_force', default_value='5.0',
+        'body_force', default_value='7.0',
         description='Forward force on base link (N)')
     body_force = LaunchConfiguration('body_force')
 
@@ -97,6 +97,11 @@ def generate_launch_description():
         'spawn_roll', default_value='-0.06',
         description='Initial lateral roll (rad, negative = toward right stance foot)')
     spawn_roll = LaunchConfiguration('spawn_roll')
+
+    spawn_yaw_arg = DeclareLaunchArgument(
+        'spawn_yaw', default_value='0.0',
+        description='Initial yaw (rad). Non-zero yaw causes body-force to push off-axis → yaw drift')
+    spawn_yaw = LaunchConfiguration('spawn_yaw')
 
     rviz_config_arg = DeclareLaunchArgument(
         'rvizconfig',
@@ -119,11 +124,11 @@ def generate_launch_description():
                     '-string', robot_desc_gz,
                     '-name', 'pady',
                     '-x', spawn_x,
-                    '-y', '0',
-                    '-z', '1.45',
+                    '-y', '0.13',
+                    '-z', '1.44',
                     '-R', spawn_roll,
                     '-P', spawn_pitch,
-                    '-Y', '-0.01',
+                    '-Y', spawn_yaw,
                 ],
                 output='screen'
             )
@@ -190,7 +195,8 @@ def generate_launch_description():
     # ── Bilateral simultaneous kick: both hips at once ──────────────
     # Right (stance) hip: negative torque → body forward over stance foot.
     # Left (swing) hip:  positive torque → swing leg accelerates forward.
-    # Duration ~0.35 s ≈ 60 % of corrected half-period (0.58 s).
+    # Duration ~0.20 s — shorter pulse reduces yaw impulse from swing-leg
+    # angular momentum change while body force provides yaw-neutral push.
     bilateral_kick = TimerAction(
         period=8.10,
         actions=[
@@ -206,7 +212,7 @@ def generate_launch_description():
     )
 
     kick_stop = TimerAction(
-        period=8.45,
+        period=8.30,
         actions=[
             ExecuteProcess(
                 cmd=['gz', 'topic', '-t', '/model/pady/joint/hip_joint_right/0/cmd_force',
@@ -261,6 +267,17 @@ def generate_launch_description():
         )],
     )
 
+    yaw_corrector_node = TimerAction(
+        period=7.0,
+        actions=[Node(
+            package='pady_robot',
+            executable='yaw_corrector.py',
+            name='yaw_corrector',
+            output='screen',
+            parameters=[{'use_sim_time': use_sim_time}],
+        )],
+    )
+
     return LaunchDescription([
         use_sim_time_arg,
         kick_torque_arg,
@@ -273,6 +290,7 @@ def generate_launch_description():
         spawn_x_arg,
         spawn_pitch_arg,
         spawn_roll_arg,
+        spawn_yaw_arg,
         world_arg,
         rviz_config_arg,
         gazebo,
@@ -286,4 +304,5 @@ def generate_launch_description():
         release,
         hip_bias_node,
         knee_lock_node,
+        yaw_corrector_node,
     ])

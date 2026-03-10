@@ -21,8 +21,84 @@
     <!-- Required for ros_gz_sim create to spawn models into this world -->
     <plugin filename="gz-sim-user-commands-system"
             name="gz::sim::systems::UserCommands"/>
+    <!-- Wrench system: allows yaw_corrector node to apply torques via
+         /world/slope_world/wrench topic (gz.msgs.EntityWrench) -->
+    <plugin filename="gz-sim-apply-link-wrench-system"
+            name="gz::sim::systems::ApplyLinkWrench"/>
 
-    <!-- Sunlight -->
+  
+    <!-- Guiderails: two cylinders parallel to slope, Z=1.0m, Y=±0.15m, radius=0.005m, length=10m -->
+    <!-- <model name="guiderail_left">
+      <static>true</static>
+      <pose>5 0.6 0.7 0 1.63188 0</pose>
+      <link name="rail">
+        <collision name="rail_collision">
+          <geometry>
+            <cylinder>
+              <radius>0.005</radius>
+              <length>10.0</length>
+            </cylinder>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>0.0</mu>
+                <mu2>0.0</mu2>
+              </ode>
+            </friction>
+          </surface>
+        </collision>
+        <visual name="rail_visual">
+          <geometry>
+            <cylinder>
+              <radius>0.005</radius>
+              <length>10.0</length>
+            </cylinder>
+          </geometry>
+          <material>
+            <ambient>0.8 0.8 0.2 1</ambient>
+            <diffuse>0.8 0.8 0.2 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="guiderail_right">
+      <static>true</static>
+      <pose>5 -0.6 0.7 0 1.63188 0</pose>
+      <link name="rail">
+        <collision name="rail_collision">
+          <geometry>
+            <cylinder>
+              <radius>0.005</radius>
+              <length>10.0</length>
+            </cylinder>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>0.0</mu>
+                <mu2>0.0</mu2>
+              </ode>
+              
+            </friction>
+          </surface>
+        </collision>
+        <visual name="rail_visual">
+          <geometry>
+            <cylinder>
+              <radius>0.005</radius>
+              <length>10.0</length>
+            </cylinder>
+          </geometry>
+          <material>
+            <ambient>0.8 0.8 0.2 1</ambient>
+            <diffuse>0.8 0.8 0.2 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model> -->
+
+     <!-- Sunlight -->
     <light type="directional" name="sun">
       <pose>0 0 10 0 0 0</pose>
       <diffuse>1 1 1 1</diffuse>

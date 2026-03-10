@@ -60,3 +60,10 @@
   ros_type_name: "std_msgs/msg/Float64"
   gz_type_name: "gz.msgs.Double"
   direction: ROS_TO_GZ
+
+# Yaw correction torque — applied via ApplyJointForce on yaw_joint
+- ros_topic_name: "/yaw_correction"
+  gz_topic_name: "/model/pady/joint/yaw_joint/0/cmd_force"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ

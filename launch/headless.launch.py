@@ -40,22 +40,27 @@ def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time')
 
     kick_torque_arg = DeclareLaunchArgument(
-        'kick_torque', default_value='4.0',
+        'kick_torque', default_value='0.2',
         description='Left-hip kick magnitude (N·m)')
     kick_torque = LaunchConfiguration('kick_torque')
 
     kick_torque_right_arg = DeclareLaunchArgument(
-        'kick_torque_right', default_value='-4.0',
+        'kick_torque_right', default_value='-0.2',
         description='Right-hip kick magnitude (N·m)')
     kick_torque_right = LaunchConfiguration('kick_torque_right')
 
+    kick_follow_torque_arg = DeclareLaunchArgument(
+        'kick_follow_torque', default_value='0',
+        description='(Legacy) Right-hip follow-through torque')
+    kick_follow_torque = LaunchConfiguration('kick_follow_torque')
+
     hip_push_torque_arg = DeclareLaunchArgument(
-        'hip_push_torque', default_value='3.0',
+        'hip_push_torque', default_value='0',
         description='Hip bias torque (N·m)')
     hip_push_torque = LaunchConfiguration('hip_push_torque')
 
     hip_push_start_arg = DeclareLaunchArgument(
-        'hip_push_start_time', default_value='0.0',
+        'hip_push_start_time', default_value='0',
         description='Bias start time (s)')
     hip_push_start_time = LaunchConfiguration('hip_push_start_time')
 
@@ -65,24 +70,44 @@ def generate_launch_description():
     hip_push_stop_time = LaunchConfiguration('hip_push_stop_time')
 
     body_force_arg = DeclareLaunchArgument(
-        'body_force', default_value='8.0',
+        'body_force', default_value='0',
         description='Forward force on base link (N)')
     body_force = LaunchConfiguration('body_force')
 
     spawn_x_arg = DeclareLaunchArgument(
-        'spawn_x', default_value='0.45',
+        'spawn_x', default_value='0.34',
         description='Initial x-coordinate')
     spawn_x = LaunchConfiguration('spawn_x')
 
+    spawn_y_arg = DeclareLaunchArgument(
+        'spawn_y', default_value='0.3',
+        description='Initial y-coordinate')
+    spawn_y = LaunchConfiguration('spawn_y')
+
     spawn_pitch_arg = DeclareLaunchArgument(
-        'spawn_pitch', default_value='0.45',
+        'spawn_pitch', default_value='0.42',
         description='Initial forward pitch (rad)')
     spawn_pitch = LaunchConfiguration('spawn_pitch')
 
     spawn_roll_arg = DeclareLaunchArgument(
-        'spawn_roll', default_value='-0.20',
+        'spawn_roll', default_value='-0.2385',
         description='Initial lateral roll (rad)')
     spawn_roll = LaunchConfiguration('spawn_roll')
+
+    spawn_yaw_arg = DeclareLaunchArgument(
+        'spawn_yaw', default_value='0.1',
+        description='Initial yaw (rad)')
+    spawn_yaw = LaunchConfiguration('spawn_yaw')
+
+    arm_mass_arg = DeclareLaunchArgument(
+        'arm_mass', default_value='0.3',
+        description='Arm mass (kg)')
+    arm_mass = LaunchConfiguration('arm_mass')
+
+    arm_com_arg = DeclareLaunchArgument(
+        'arm_com', default_value='-0.14',
+        description='Arm COM (m)')
+    arm_com = LaunchConfiguration('arm_com')
 
     # ── Gazebo server-only mode (faster for sweeps) ──────────────────────────
     gazebo = ExecuteProcess(
@@ -99,11 +124,11 @@ def generate_launch_description():
                 '-string', robot_desc_gz,
                 '-name',   'pady',
                 '-x',      spawn_x,
-                '-y',      '0',
+                '-y',      spawn_y,
                 '-z',      '1.45',
                 '-R',      spawn_roll,
                 '-P',      spawn_pitch,
-                '-Y',      '0',
+                '-Y',      spawn_yaw,
             ],
             output='screen'
         )]
@@ -215,6 +240,8 @@ def generate_launch_description():
                 'stop_time':   hip_push_stop_time,
                 'rate':        50.0,
                 'use_sim_time': use_sim_time,
+                'arm_mass':    arm_mass,
+                'arm_com':     arm_com,
             }],
         )]
     )
@@ -237,15 +264,18 @@ def generate_launch_description():
             executable='gait_analyser.py',
             name='gait_analyser',
             output='screen',
-            parameters=[{'use_sim_time': use_sim_time}],
+            parameters=[{'use_sim_time': use_sim_time,
+                         'arm_mass': arm_mass,
+                         'arm_com': arm_com}],
         )],
     )
 
     return LaunchDescription([
         use_sim_time_arg,
-        kick_torque_arg, kick_torque_right_arg,
+        kick_torque_arg, kick_torque_right_arg, kick_follow_torque_arg,
         hip_push_torque_arg, hip_push_start_arg, hip_push_stop_arg,
-        body_force_arg, spawn_x_arg, spawn_pitch_arg, spawn_roll_arg,
+        body_force_arg, spawn_x_arg, spawn_y_arg, spawn_pitch_arg, spawn_roll_arg, spawn_yaw_arg,
+        arm_mass_arg, arm_com_arg,
         world_arg,
         gazebo,
         robot_state_pub,

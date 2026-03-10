@@ -35,6 +35,34 @@
 <robot name="pady">
 
   <!-- ═══════════════════════════════════════════════════════════════
+       YAW ANCHOR — inertial reference for yaw correction
+       ═══════════════════════════════════════════════════════════════
+       Invisible link with high Izz (0.1 kg·m²) that resists yaw rotation.
+       Connected to base_link via a revolute Z-joint with passive damping.
+       The yaw_corrector node applies active correction through ApplyJointForce.
+       The anchor becomes the model root (free body), base_link hangs below it.
+       Mass is negligible (0.01 kg) so it doesn't affect translational dynamics.
+       ═══════════════════════════════════════════════════════════════ -->
+  <link name="yaw_anchor">
+    <inertial>
+      <mass value="0.0001"/>
+      <!-- Near-zero inertia: anchor spins freely under reaction torque
+           but base_link still receives full corrective torque from the joint.
+           Triangle inequality: 0.0005+0.0005≥0.001 ✓
+           Adds <8% to Ixx and <3% to Iyy of base_link. -->
+      <inertia ixx="0.0005" ixy="0" ixz="0" iyy="0.0005" iyz="0" izz="0.001"/>
+    </inertial>
+  </link>
+
+  <joint name="yaw_joint" type="revolute">
+    <parent link="yaw_anchor"/>
+    <child link="base_link"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="100" lower="-3.14159" upper="3.14159" velocity="10.0"/>
+    <dynamics damping="2.0" friction="0.0"/>
+  </joint>
+
+  <!-- ═══════════════════════════════════════════════════════════════
        BASE LINK  (hip / pelvis)
        ═══════════════════════════════════════════════════════════════ -->
   <link name="base_link">
@@ -55,7 +83,7 @@
     <inertial>
       <mass value="1.600"/>
       <origin xyz="0 0 -0.015" rpy="0 0 0"/>
-      <inertia ixx="0.002133" ixy="0.0" ixz="0.0" iyy="0.006667" iyz="0.0" izz="0.008373"/>
+      <inertia ixx="0.00637" ixy="0.0" ixz="0.0" iyy="0.01990" iyz="0.0" izz="0.025"/>
     </inertial>
   </link>
 
@@ -153,14 +181,14 @@
     <visual>
       <!-- rpy="0 0 4.71239" = Rz(-90°): CAD-X→-URDF-Y, CAD-Y→URDF-X, CAD-Z→URDF-Z
            xyz = -Rz(-90°) · P_joint/1000, P_joint=(-107.86, 1, 20)mm → (-0.001, -0.10786, -0.020) -->
-      <origin xyz="0.1175 -0.1085 -0.020" rpy="0 0 4.71239"/>
+      <origin xyz="0.1175 -0.1091 -0.020" rpy="0 0 4.71239"/>
       <geometry>
         <mesh filename="package://pady_robot/meshes/visual/right_foot.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="dark_grey"><color rgba="0.3 0.3 0.3 1.0"/></material>
     </visual>
     <collision>
-      <origin xyz="0.1175 -0.1085 -0.020" rpy="0 0 4.71239"/>
+      <origin xyz="0.1175 -0.1091 -0.020" rpy="0 0 4.71239"/>
       <geometry>
         <mesh filename="package://pady_robot/meshes/visual/right_foot.stl" scale="0.001 0.001 0.001"/>
       </geometry>
@@ -254,14 +282,14 @@
     <visual>
       <!-- rpy="0 0 4.71239" = Rz(-90°): xyz = -Rz(-90°) · P_joint/1000
            P_joint=(+107.86, 1, 20)mm → (-0.001, +0.10786, -0.020) -->
-      <origin xyz="0.1175 0.1097 -0.020" rpy="0 0 4.71239"/>
+      <origin xyz="0.1175 0.1091 -0.020" rpy="0 0 4.71239"/>
       <geometry>
         <mesh filename="package://pady_robot/meshes/visual/left_foot.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="dark_grey"/>
     </visual>
     <collision>
-      <origin xyz="0.1175 0.1097 -0.020" rpy="0 0 4.71239"/>
+      <origin xyz="0.1175 0.1091 -0.020" rpy="0 0 4.71239"/>
       <geometry>
         <mesh filename="package://pady_robot/meshes/visual/left_foot.stl" scale="0.001 0.001 0.001"/>
       </geometry>
@@ -295,8 +323,9 @@
     <origin xyz="0.015 -0.2585 0.0065" rpy="0 -2.4508 0"/>
     <axis xyz="0 1 0"/>
     <limit effort="0" lower="-0.97" upper="1.53" velocity="8.0"/>
-    <!-- Higher damping generates counter-yaw torque as arms resist body rotation -->
-    <dynamics damping="0.2" friction="0.0001"/>
+    <!-- Underdamped (ζ≈0.44): arms oscillate freely for counter-yaw swing.
+         Critical damping ≈ 0.34 Nm·s/rad; 0.15 gives good oscillation. -->
+    <dynamics damping="0.15" friction="0.0001"/>
   </joint>
 
   <link name="arm_right">
@@ -313,11 +342,12 @@
     <!-- No collision: new local-coord STLs extend from joint and
          would interpenetrate base_link, jamming the joint. -->
     <inertial>
-      <mass value="0.250"/>
+      <mass value="0.300"/>
       <origin xyz="-0.140 0 0" rpy="0 0 0"/>
-      <inertia ixx="3.7e-5" ixy="0.0" ixz="0.0"
-               iyy="1.64e-3" iyz="0.0"
-               izz="1.67e-3"/>
+      <!-- Inertia scaled ×0.75 from previous (was 0.400 kg) for 0.300 kg arms. -->
+      <inertia ixx="4.4e-5" ixy="0.0" ixz="0.0"
+               iyy="1.97e-3" iyz="0.0"
+               izz="2.00e-3"/>
     </inertial>
   </link>
 
@@ -328,8 +358,8 @@
     <origin xyz="0.015 0.2585 0.0065" rpy="0 -0.6908 0"/>
     <axis xyz="0 1 0"/>
     <limit effort="0" lower="-1.53" upper="0.97" velocity="8.0"/>
-    <!-- Higher damping generates counter-yaw torque as arms resist body rotation -->
-    <dynamics damping="0.2" friction="0.0001"/>
+    <!-- Underdamped (ζ≈0.44): arms oscillate freely for counter-yaw swing -->
+    <dynamics damping="0.15" friction="0.0001"/>
   </joint>
 
   <link name="arm_left">
@@ -346,11 +376,12 @@
     </visual>
     <!-- No collision: same as right arm -->
     <inertial>
-      <mass value="0.250"/>
+      <mass value="0.300"/>
       <origin xyz="-0.140 0 0" rpy="0 0 0"/>
-      <inertia ixx="3.7e-5" ixy="0.0" ixz="0.0"
-               iyy="1.64e-3" iyz="0.0"
-               izz="1.67e-3"/>
+      <!-- Inertia scaled ×0.75 from previous (was 0.400 kg) for 0.300 kg arms. -->
+      <inertia ixx="4.4e-5" ixy="0.0" ixz="0.0"
+               iyy="1.97e-3" iyz="0.0"
+               izz="2.00e-3"/>
     </inertial>
   </link>
   <!-- ═══════════════════════════════════════════════════════════════
@@ -364,6 +395,13 @@
        Maintains last commanded force each step; send 0.0 to go passive. -->
   <!-- ApplyJointForce: topic must include the /0/ index used by the launch-file kick.
        Default topic omits it; explicitly setting it here ensures the two match. -->
+  <gazebo>
+    <plugin filename="gz-sim-apply-joint-force-system"
+            name="gz::sim::systems::ApplyJointForce">
+      <joint_name>yaw_joint</joint_name>
+      <topic>/model/pady/joint/yaw_joint/0/cmd_force</topic>
+    </plugin>
+  </gazebo>
   <gazebo>
     <plugin filename="gz-sim-apply-joint-force-system"
             name="gz::sim::systems::ApplyJointForce">
@@ -448,7 +486,7 @@
       <publish_link_pose>false</publish_link_pose>
       <publish_nested_model_pose>false</publish_nested_model_pose>
       <use_pose_vector_msg>false</use_pose_vector_msg>
-      <update_frequency>50</update_frequency>
+      <update_frequency>500</update_frequency>
     </plugin>
   </gazebo>
 
