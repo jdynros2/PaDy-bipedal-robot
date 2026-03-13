@@ -70,7 +70,7 @@ def generate_launch_description():
         'spawn_yaw', default_value='0.0',
         description='Initial yaw (rad). Non-zero yaw causes body-force to push off-axis → yaw drift')
     world_arg = DeclareLaunchArgument(
-        'world', default_value='slope_3deg.sdf',
+        'world', default_value='slope_3p50deg.sdf',
         description='World SDF filename inside pady_robot/worlds')
     use_sim_time_arg = DeclareLaunchArgument(
         'use_sim_time', default_value='true',

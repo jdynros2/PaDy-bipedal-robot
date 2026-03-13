@@ -34,7 +34,7 @@ def generate_launch_description():
 
     world_arg = DeclareLaunchArgument(
         'world',
-        default_value='slope_3deg.sdf',
+        default_value='slope_3p50deg.sdf',
         description='World SDF filename inside pady_robot/worlds')
     world_file = LaunchConfiguration('world')
 
