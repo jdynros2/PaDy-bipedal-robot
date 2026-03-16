@@ -2,6 +2,10 @@
 
 3D Passive Dynamic Walker, simulated in ROS 2 Jazzy + Gazebo Harmonic (DART physics)/
 
+Video medley
+https://github.com/user-attachments/assets/74391a78-1923-4f4a-97c0-19f8769bd9da
+
+
 ## Prerequisites
 
 - **Ubuntu 24.04** (or compatible Linux distribution)
