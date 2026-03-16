@@ -117,3 +117,10 @@ ros2 launch pady_robot analysis.launch.py world:=slope_3p00deg.sdf
 | Knee lock/unlock | PD: 150 Kp, 8 swing assist | No — active controller |
 | Yaw correction | PD: 15 Kp, up to 8 N·m | No — active controller |
 
+**Both active controllers are necessary due to simulation limitations.**
+
+- No rotational torque friction - robot turns due to yaw forces
+
+- Knee lock would be suction cup in real life - simulation cant replicate this physics
+
+
