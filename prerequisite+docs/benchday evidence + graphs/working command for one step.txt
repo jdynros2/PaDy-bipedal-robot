@@ -1,2 +1,0 @@
-ros2 launch pady_robot spawn_pady.launch.py kick_torque:=0.2 kick_torque_right:=-0.2 body_force:=3.5 spawn_pitch:=0.52 spawn_roll:=-0.25 hip_push_torque:=0.2
-
