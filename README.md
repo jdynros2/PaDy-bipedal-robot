@@ -98,7 +98,27 @@ ros2 launch pady_robot analysis.launch.py world:=slope_3p00deg.sdf
 | `scripts/continuous_hip_push.py` | Hip torque control |
 | `scripts/knee_lock.py` | Knee locking controller |
 | `scripts/yaw_corrector.py` | Yaw correction |
-| `scripts/plot_*.py` | Analysis plotting scripts |
+| `scripts/plot_*.py` | Analysis plotting scripts (see below) |
+
+## Plotting Scripts
+
+Run these on collected CSV data to produce figures for gait analysis.
+
+| Script | Purpose |
+|--------|---------|
+| `plot_gait_cycles_combined.py` | Full bilateral gait cycle with human reference overlay |
+| `plot_gait_cycle.py` | Right leg joint angles vs % gait cycle with human curves |
+| `plot_gait_cycle_left.py` | Left leg joint angles vs % gait cycle with human curves |
+| `plot_cycle_comparison_table.py` | Single-cycle metrics table rated against human norms |
+| `plot_gait_comparison_table.py` | Comprehensive multi-metric comparison table |
+| `plot_hip_phase_velocity.py` | Hip phase portrait with gait phase colouring |
+| `plot_knee_phase_portrait.py` | Knee angle vs velocity phase portrait |
+| `plot_hip_angles.py` | Hip angles over time with human ROM bands |
+| `plot_knee_angles.py` | Knee angles over time with human ROM bands |
+| `plot_trunk_stability.py` | Roll, pitch, yaw stability with human reference |
+| `plot_slope_stability.py` | Forward distance vs time across slope angles |
+| `plot_slope_stability_detail.py` | Fine-grained slope sweep (0.1° increments) |
+| `plot_slope_stability_ultrafine.py` | Ultra-fine slope sweep (0.05° increments) |
 
 ## Tuning Guide
 
