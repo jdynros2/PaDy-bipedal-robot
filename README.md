@@ -2,20 +2,6 @@
 
 Collins-style 3D passive dynamic walker simulated in ROS 2 Jazzy + Gazebo Harmonic (DART physics, 1 kHz).
 
-## Robot Specifications
-
-| Parameter | Value |
-|-----------|-------|
-| Total mass | 4.124 kg |
-| Hip (base_link) mass | 1.600 kg |
-| Leg mass (per side) | 0.962 kg |
-| Arm mass (per side) | 0.300 kg |
-| Thigh / shin length | 500 mm each |
-| Hip width | 215.72 mm |
-| Hip joint offset | ±0.28 rad (±16°) pitch |
-| Knee range | 0–65° |
-| Optimal slope range | 2.95°–3.55° |
-
 ## Prerequisites
 
 - **Ubuntu 24.04** (or compatible Linux distribution)
@@ -58,6 +44,20 @@ ros2 launch pady_robot analysis.launch.py \
 # Different slope (default: 3.50°)
 ros2 launch pady_robot analysis.launch.py world:=slope_3p00deg.sdf
 ```
+
+## Robot Specifications
+
+| Parameter | Value |
+|-----------|-------|
+| Total mass | 4.124 kg |
+| Hip (base_link) mass | 1.600 kg |
+| Leg mass (per side) | 0.962 kg |
+| Arm mass (per side) | 0.300 kg |
+| Thigh / shin length | 500 mm each |
+| Hip width | 215.72 mm |
+| Hip joint offset | ±0.28 rad (±16°) pitch |
+| Knee range | 0–65° |
+| Optimal slope range | 2.95°–3.55° |
 
 ## Launch Arguments
 
