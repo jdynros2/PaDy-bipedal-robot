@@ -339,8 +339,12 @@
       </geometry>
       <material name="grey"/>
     </visual>
-    <!-- No collision: new local-coord STLs extend from joint and
-         would interpenetrate base_link, jamming the joint. -->
+    <collision>
+      <origin xyz="-0.280 0 -0.003" rpy="1.5708 0 1.5708"/>
+      <geometry>
+        <mesh filename="package://pady_robot/meshes/visual/arm_right.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
     <inertial>
       <mass value="0.300"/>
       <origin xyz="-0.140 0 0" rpy="0 0 0"/>
@@ -374,7 +378,12 @@
       </geometry>
       <material name="grey"/>
     </visual>
-    <!-- No collision: same as right arm -->
+    <collision>
+      <origin xyz="-0.280 0 -0.003" rpy="1.5708 0 -1.5708"/>
+      <geometry>
+        <mesh filename="package://pady_robot/meshes/visual/arm_left.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
     <inertial>
       <mass value="0.300"/>
       <origin xyz="-0.140 0 0" rpy="0 0 0"/>

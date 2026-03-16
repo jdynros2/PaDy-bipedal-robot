@@ -77,12 +77,11 @@ FALL_HEIGHT_FRACTION = 0.25     # fall if projected slope-height drops below thi
 FALL_ROLL_RAD = 1.20            # fall if |roll| exceeds this (rad)
 FALL_PITCH_RAD = 1.30           # fall if |pitch| exceeds this (rad)
 VARIANCE_WINDOW = 60            # default samples per joint for rolling std (can override by param)
-STEP_DEBOUNCE_S = 0.25          # min time between counted zero-crossings
-STEP_MIN_AMPLITUDE = 0.15       # min |hip| peak since last crossing to count a step
-STEP_COUNT_MAX_ROLL_RAD = 0.70  # do not count steps when roll exceeds this (near-fall posture)
-STEP_COUNT_MAX_PITCH_RAD = 1.00 # do not count steps when pitch exceeds this (near-fall posture)
-KNEE_STEP_ARM_RAD = 0.35        # arm a knee-step once flexion exceeds this angle
-KNEE_STEP_FIRE_RAD = 0.08       # count touchdown when armed knee extends below this angle
+STEP_DEBOUNCE_S = 0.30          # min time between counted steps
+STEP_COUNT_MAX_ROLL_RAD = 0.45  # do not count steps when |roll| exceeds this (~25°)
+STEP_COUNT_MAX_PITCH_RAD = 0.52 # do not count steps when |pitch| exceeds this (~30°)
+KNEE_STEP_ARM_RAD = 0.175       # arm a knee-step once flexion exceeds 10°
+KNEE_STEP_FIRE_RAD = 0.087      # count touchdown when armed knee extends below 5°
 SLOPE_ANGLE = 0.0611            # world slope angle used for height projection
 CSV_INTERVAL = 1.0 / 30.0       # CSV write rate (seconds)
 DATA_DIR = os.path.expanduser('~/ros2_ws/data')
@@ -122,12 +121,8 @@ class GaitAnalyser(Node):
         # ── Runtime state ─────────────────────────────────────────────────────
         self._hip_win    = deque(maxlen=var_win)
         self._knee_win   = deque(maxlen=var_win)
-        self._prev_sign_r = None         # previous sign of hip_right
-        self._prev_sign_l = None         # previous sign of hip_left
-        self._peak_r = 0.0               # peak |hip_r| since last right zero-crossing
-        self._peak_l = 0.0               # peak |hip_l| since last left zero-crossing
-        self._knee_r_armed = False       # true after right knee enters swing flexion zone
-        self._knee_l_armed = False       # true after left knee enters swing flexion zone
+        self._knee_r_armed = False       # true after right knee flexion exceeds arm threshold
+        self._knee_l_armed = False       # true after left knee flexion exceeds arm threshold
         self._step_count = 0
         self._run_start_t = None         # first valid sim timestamp seen by analyser
         self._last_step_t = 0.0
@@ -248,50 +243,22 @@ class GaitAnalyser(Node):
                     )
                     self._csv_file.flush()
 
-        # ── step counting (frozen once fallen) ─────────────────────────────────
-        # Primary detector: hip zero-crossings with amplitude and debounce.
-        # Backup detector: knee touchdown (flexed knee extends back near 0 rad).
-        sign_r = 1 if hip_r >= 0.0 else -1
-        sign_l = 1 if hip_l >= 0.0 else -1
-        self._peak_r = max(self._peak_r, abs(hip_r))
-        self._peak_l = max(self._peak_l, abs(hip_l))
-        stepped = False
+        # ── step counting: knee touchdown only (frozen once fallen) ────────────
+        # A step is counted when a knee flexes past ARM threshold then extends
+        # back below FIRE threshold — this directly measures foot contact.
         pose_ok_for_count = (not has_pose) or (
             abs(b_roll) <= STEP_COUNT_MAX_ROLL_RAD and
             abs(b_pitch) <= STEP_COUNT_MAX_PITCH_RAD
         )
         if not self._fallen:
-            if self._prev_sign_r is not None and sign_r != self._prev_sign_r:
-                dt = sim_t - self._last_step_t
-                if dt >= STEP_DEBOUNCE_S and self._peak_r >= STEP_MIN_AMPLITUDE and pose_ok_for_count:
-                    self._step_count += 1
-                    stepped = True
-                    if self._last_step_t > 0.0:
-                        self._gait_period = dt
-                    elif self._run_start_t is not None:
-                        self._gait_period = max(0.0, sim_t - self._run_start_t)
-                    self._last_step_t = sim_t
-                self._peak_r = 0.0
-            if self._prev_sign_l is not None and sign_l != self._prev_sign_l:
-                dt = sim_t - self._last_step_t
-                if dt >= STEP_DEBOUNCE_S and not stepped and self._peak_l >= STEP_MIN_AMPLITUDE and pose_ok_for_count:
-                    self._step_count += 1
-                    if self._last_step_t > 0.0:
-                        self._gait_period = dt
-                    elif self._run_start_t is not None:
-                        self._gait_period = max(0.0, sim_t - self._run_start_t)
-                    self._last_step_t = sim_t
-                    stepped = True
-                self._peak_l = 0.0
-
-            # Knee touchdown step detector (helps count first physical step when
-            # hip sign does not cross zero before fall).
+            # Arm when knee flexion exceeds threshold
             if knee_r >= KNEE_STEP_ARM_RAD:
                 self._knee_r_armed = True
             if knee_l >= KNEE_STEP_ARM_RAD:
                 self._knee_l_armed = True
 
-            if self._knee_r_armed and knee_r <= KNEE_STEP_FIRE_RAD and not stepped:
+            # Fire when armed knee extends back — step complete
+            if self._knee_r_armed and knee_r <= KNEE_STEP_FIRE_RAD:
                 dt = sim_t - self._last_step_t
                 if dt >= STEP_DEBOUNCE_S and pose_ok_for_count:
                     self._step_count += 1
@@ -300,10 +267,9 @@ class GaitAnalyser(Node):
                     elif self._run_start_t is not None:
                         self._gait_period = max(0.0, sim_t - self._run_start_t)
                     self._last_step_t = sim_t
-                    stepped = True
                 self._knee_r_armed = False
 
-            if self._knee_l_armed and knee_l <= KNEE_STEP_FIRE_RAD and not stepped:
+            if self._knee_l_armed and knee_l <= KNEE_STEP_FIRE_RAD:
                 dt = sim_t - self._last_step_t
                 if dt >= STEP_DEBOUNCE_S and pose_ok_for_count:
                     self._step_count += 1
@@ -312,10 +278,7 @@ class GaitAnalyser(Node):
                     elif self._run_start_t is not None:
                         self._gait_period = max(0.0, sim_t - self._run_start_t)
                     self._last_step_t = sim_t
-                    stepped = True
                 self._knee_l_armed = False
-        self._prev_sign_r = sign_r
-        self._prev_sign_l = sign_l
 
         # ── publish ───────────────────────────────────────────────────────────
         def _pf(pub, v):
