@@ -1,6 +1,6 @@
 # PaDy — Passive Dynamic Bipedal Walker
 
-Collins-style 3D passive dynamic walker simulated in ROS 2 Jazzy + Gazebo Harmonic (DART physics, 1 kHz).
+3D Passive Dynamic Walker, simulated in ROS 2 Jazzy + Gazebo Harmonic (DART physics)/
 
 ## Prerequisites
 
@@ -28,20 +28,20 @@ source install/setup.bash
 ## Running
 
 ```bash
-# Interactive simulation (Gazebo + RViz)
+# Standard simulation with built in arguments
 ros2 launch pady_robot spawn_pady.launch.py
 
 # Data collection (adds gait_analyser + rosbag recording)
 ros2 launch pady_robot analysis.launch.py
 
-# Best tuned passive run (no external forces)
+# Best tuned passive run (CLI arguments for quick tweaking)
 ros2 launch pady_robot analysis.launch.py \
   kick_torque:=0.2 kick_torque_right:=-0.2 \
   kick_follow_torque:=0 body_force:=0 hip_push_torque:=0 \
   hip_push_start_time:=0 hip_push_stop_time:=12.0 \
   spawn_x:=0.34 spawn_pitch:=0.42 spawn_roll:=-0.2385 spawn_yaw:=0.1
 
-# Different slope (default: 3.50°)
+# Different slope (default: 3.50°, raanges from 2.85° -> 4.00°)
 ros2 launch pady_robot analysis.launch.py world:=slope_3p00deg.sdf
 ```
 
@@ -55,7 +55,6 @@ ros2 launch pady_robot analysis.launch.py world:=slope_3p00deg.sdf
 | Arm mass (per side) | 0.300 kg |
 | Thigh / shin length | 500 mm each |
 | Hip width | 215.72 mm |
-| Hip joint offset | ±0.28 rad (±16°) pitch |
 | Knee range | 0–65° |
 | Optimal slope range | 2.95°–3.55° |
 
@@ -73,9 +72,6 @@ ros2 launch pady_robot analysis.launch.py world:=slope_3p00deg.sdf
 | `spawn_yaw` | 0.1 | Initial yaw (rad) |
 | `world` | slope_3p50deg.sdf | World file |
 
-## Available Slope Worlds
-
-`worlds/slope_Xdeg.sdf` — available angles: 2.85°, 2.90°, 2.95°, 3.00°, 3.05°, 3.10°, 3.20°, 3.25°, 3.30°, 3.35°, 3.40°, 3.45°, 3.50°, 3.55°, 3.60°, 3.70°, 3.75°, 4.00°
 
 ## Data Output
 
@@ -109,5 +105,4 @@ ros2 launch pady_robot analysis.launch.py world:=slope_3p00deg.sdf
 ## URDF Notes
 
 - Hip joints have **built-in pitch offsets** (±0.28 rad) in the joint origin `rpy`. Raw joint angles from `/joint_states` must be corrected: `hip_left_actual = joint_angle - 0.28 rad`, `hip_right_actual = joint_angle + 0.28 rad`
-- Knee joints have no offset — knee data is correct as-is
-- Foot CoM is offset 40mm forward for rocker geometry
+
