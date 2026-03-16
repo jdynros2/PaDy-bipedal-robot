@@ -16,9 +16,23 @@ Collins-style 3D passive dynamic walker simulated in ROS 2 Jazzy + Gazebo Harmon
 | Knee range | 0–65° |
 | Optimal slope range | 2.95°–3.55° |
 
+## Prerequisites
+
+- **Ubuntu 24.04** (or compatible Linux distribution)
+- **ROS 2 Jazzy** — [installation guide](https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html)
+- **Gazebo Harmonic** — [installation guide](https://gazebosim.org/docs/harmonic/install_ubuntu)
+- **ros_gz bridge** — `sudo apt install ros-jazzy-ros-gz`
+- **colcon** — `sudo apt install python3-colcon-common-extensions`
+- **rqt-plot** (for analysis launch) — `sudo apt install ros-jazzy-rqt-plot`
+
 ## Setup
 
 ```bash
+# Clone the repository
+cd ~/ros2_ws/src
+git clone https://github.com/jdynros2/PaDy-bipedal-robot.git pady_robot
+
+# Build
 cd ~/ros2_ws
 source /opt/ros/jazzy/setup.bash
 colcon build --packages-select pady_robot
