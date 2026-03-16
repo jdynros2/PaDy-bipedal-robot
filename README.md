@@ -55,6 +55,7 @@ ros2 launch pady_robot analysis.launch.py world:=slope_3p00deg.sdf
 | Arm mass (per side) | 0.300 kg |
 | Thigh / shin length | 500 mm each |
 | Hip width | 215.72 mm |
+| Hip range | ±15° |
 | Knee range | 0–65° |
 | Optimal slope range | 2.95°–3.55° |
 
