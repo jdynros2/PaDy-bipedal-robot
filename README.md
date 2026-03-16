@@ -106,3 +106,13 @@ ros2 launch pady_robot analysis.launch.py world:=slope_3p00deg.sdf
 
 - Hip joints have **built-in pitch offsets** (±0.28 rad) in the joint origin `rpy`. Raw joint angles from `/joint_states` must be corrected: `hip_left_actual = joint_angle - 0.28 rad`, `hip_right_actual = joint_angle + 0.28 rad`
 
+## Passivity Audit
+
+| Component | With passive CLI args | Truly passive? |
+|-----------|----------------------|----------------|
+| Hip push torque | 0 N·m | Yes (disabled) |
+| Body forward force | 0 N | Yes (disabled) |
+| Initial kick | 0.2 N·m for 0.2s | No — small but active |
+| Knee lock/unlock | PD: 150 Kp, 8 swing assist | No — active controller |
+| Yaw correction | PD: 15 Kp, up to 8 N·m | No — active controller |
+
